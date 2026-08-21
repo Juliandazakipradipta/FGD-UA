@@ -18,9 +18,29 @@ class AuthController extends Controller
     public function login(Request $request): RedirectResponse
     {
         $input = strtolower(trim((string)$request->input('email')));
-        $password = $request->input('password');
+        $password = (string)$request->input('password');
 
-        $email = (filter_var($input, FILTER_VALIDATE_EMAIL)) ? $input : 'admin@notulensi.test';
+        $emailMap = [
+            'admin' => 'admin@notulensi.test',
+            'ululalbab' => 'ululalbab@notulensi.test',
+            'ulul_albab' => 'ululalbab@notulensi.test',
+            'ulul albab' => 'ululalbab@notulensi.test',
+            'perumnas2' => 'perumnas2@notulensi.test',
+            'perumnas_2' => 'perumnas2@notulensi.test',
+            'perumnas 2' => 'perumnas2@notulensi.test',
+        ];
+
+        if (isset($emailMap[$input])) {
+            $email = $emailMap[$input];
+        } elseif (filter_var($input, FILTER_VALIDATE_EMAIL)) {
+            $email = $input;
+        } else {
+            $found = \App\Models\Admin::where('email', $input)
+                ->orWhere('email', $input . '@notulensi.test')
+                ->orWhere('name', 'LIKE', "%{$input}%")
+                ->first();
+            $email = $found ? $found->email : 'admin@notulensi.test';
+        }
 
         $credentials = [
             'email' => $email,

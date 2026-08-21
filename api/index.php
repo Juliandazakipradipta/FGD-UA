@@ -93,56 +93,67 @@ if (!getenv('APP_KEY')) {
     $_SERVER['APP_KEY'] = $key;
 }
 
-// 4. Set SQLite DB path
-$tmpDb = '/tmp/database/database.sqlite';
-$srcDb = __DIR__ . '/../database/database.sqlite';
+// 4. Set Database connection (supports external Cloud DB if set in Vercel Env Vars, else defaults to SQLite)
+$externalConn = getenv('DB_CONNECTION');
+if (!empty($externalConn) && $externalConn !== 'sqlite') {
+    // Using external database configured via Vercel Environment Variables
+} else {
+    $tmpDb = '/tmp/database/database.sqlite';
+    $srcDb = __DIR__ . '/../database/database.sqlite';
 
-if (!file_exists($tmpDb) || filesize($tmpDb) === 0) {
-    if (file_exists($srcDb) && filesize($srcDb) > 0) {
-        @copy($srcDb, $tmpDb);
-    } else {
-        @touch($tmpDb);
-    }
-}
-
-// Ensure database file and directory are fully writable
-@chmod($tmpDb, 0666);
-@chmod(dirname($tmpDb), 0777);
-
-// Force the admin passwords and scope columns in the SQLite DB to be compatible with Vercel runtime
-try {
-    $db = new \PDO("sqlite:{$tmpDb}");
-    $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-    
-    try { $db->exec("ALTER TABLE admins ADD COLUMN scope VARCHAR DEFAULT 'all'"); } catch (\Throwable $e) {}
-    try { $db->exec("ALTER TABLE minutes ADD COLUMN scope VARCHAR DEFAULT 'ulul_albab'"); } catch (\Throwable $e) {}
-
-    $admins = [
-        ['name' => 'Super Admin', 'email' => 'admin@notulensi.test', 'pass' => '0a0a7b829264607431c7c8be622f37b85084adfa387c1878eaea234fa90da91c', 'scope' => 'all'],
-        ['name' => 'Admin ULUL ALBAB', 'email' => 'ululalbab@notulensi.test', 'pass' => '87b87f39d70dff37c7f605b61854e94bf22bb3ffccf342b60331ee7343fa834c', 'scope' => 'ulul_albab'],
-        ['name' => 'Admin Perumnas 2', 'email' => 'perumnas2@notulensi.test', 'pass' => '0f01fccaa2fe3e105eb11d11873aef3b9912a349aa14d03e78b01cd7f20f81dd', 'scope' => 'perumnas_2'],
-    ];
-
-    foreach ($admins as $a) {
-        $stmt = $db->prepare("SELECT COUNT(*) FROM admins WHERE email = ?");
-        $stmt->execute([$a['email']]);
-        if ($stmt->fetchColumn() > 0) {
-            $up = $db->prepare("UPDATE admins SET name = ?, password = ?, scope = ? WHERE email = ?");
-            $up->execute([$a['name'], $a['pass'], $a['scope'], $a['email']]);
+    if (!file_exists($tmpDb) || filesize($tmpDb) === 0) {
+        if (file_exists($srcDb) && filesize($srcDb) > 0) {
+            @copy($srcDb, $tmpDb);
         } else {
-            $ins = $db->prepare("INSERT INTO admins (name, email, password, scope, created_at, updated_at) VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))");
-            $ins->execute([$a['name'], $a['email'], $a['pass'], $a['scope']]);
+            @touch($tmpDb);
         }
     }
-} catch (\Throwable $e) {
-    // Silently ignore if DB not initialized yet
-}
 
-putenv("DB_CONNECTION=sqlite");
-putenv("DB_DATABASE={$tmpDb}");
-$_ENV['DB_CONNECTION']  = 'sqlite';
-$_ENV['DB_DATABASE']    = $tmpDb;
-$_SERVER['DB_DATABASE'] = $tmpDb;
+    // Ensure database file and directory are fully writable
+    @chmod($tmpDb, 0666);
+    @chmod(dirname($tmpDb), 0777);
+
+    // Force the admin passwords and scope columns in the SQLite DB to be compatible with Vercel runtime
+    try {
+        $db = new \PDO("sqlite:{$tmpDb}");
+        $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        
+        try { $db->exec("ALTER TABLE admins ADD COLUMN scope VARCHAR DEFAULT 'all'"); } catch (\Throwable $e) {}
+        try { $db->exec("ALTER TABLE minutes ADD COLUMN scope VARCHAR DEFAULT 'ulul_albab'"); } catch (\Throwable $e) {}
+
+        $admins = [
+            ['name' => 'Super Admin', 'email' => 'admin@notulensi.test', 'raw_pass' => 'admin123', 'scope' => 'all'],
+            ['name' => 'Admin ULUL ALBAB', 'email' => 'ululalbab@notulensi.test', 'raw_pass' => 'UA123', 'scope' => 'ulul_albab'],
+            ['name' => 'Admin Perumnas 2', 'email' => 'perumnas2@notulensi.test', 'raw_pass' => 'perumnas123', 'scope' => 'perumnas_2'],
+        ];
+
+        foreach ($admins as $a) {
+            $stmt = $db->prepare("SELECT password FROM admins WHERE email = ?");
+            $stmt->execute([$a['email']]);
+            $existingPass = $stmt->fetchColumn();
+
+            if ($existingPass !== false) {
+                if (!password_verify($a['raw_pass'], $existingPass)) {
+                    $hashed = password_hash($a['raw_pass'], PASSWORD_BCRYPT);
+                    $up = $db->prepare("UPDATE admins SET name = ?, password = ?, scope = ? WHERE email = ?");
+                    $up->execute([$a['name'], $hashed, $a['scope'], $a['email']]);
+                }
+            } else {
+                $hashed = password_hash($a['raw_pass'], PASSWORD_BCRYPT);
+                $ins = $db->prepare("INSERT INTO admins (name, email, password, scope, created_at, updated_at) VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))");
+                $ins->execute([$a['name'], $a['email'], $hashed, $a['scope']]);
+            }
+        }
+    } catch (\Throwable $e) {
+        // Silently ignore if DB not initialized yet
+    }
+
+    putenv("DB_CONNECTION=sqlite");
+    putenv("DB_DATABASE={$tmpDb}");
+    $_ENV['DB_CONNECTION']  = 'sqlite';
+    $_ENV['DB_DATABASE']    = $tmpDb;
+    $_SERVER['DB_DATABASE'] = $tmpDb;
+}
 
 // 5. Bootstrap Laravel and handle request
 define('LARAVEL_START', microtime(true));
@@ -156,6 +167,19 @@ $app->useStoragePath($tmpStorage);
 $app->useBootstrapPath($tmpBootstrap);
 
 $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
+
+// Auto-migrate & seed database if using Supabase/External DB and tables are not initialized yet
+if (!empty($externalConn) && $externalConn !== 'sqlite') {
+    try {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
+        }
+    } catch (\Throwable $e) {
+        // Ignore if DB connection is initializing
+    }
+}
+
 $request = \Illuminate\Http\Request::capture();
 $response = $kernel->handle($request);
 $response->send();
