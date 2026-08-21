@@ -22,6 +22,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         // (serverless stateless environment causes session cookie mismatch)
         $middleware->validateCsrfTokens(except: [
             'admin/*',
+            'notulensi',
             'notulensi/*',
             'form/*',
         ]);
