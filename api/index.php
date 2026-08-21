@@ -109,6 +109,16 @@ if (!file_exists($tmpDb) || filesize($tmpDb) === 0) {
 @chmod($tmpDb, 0666);
 @chmod(dirname($tmpDb), 0777);
 
+// Force the admin password in the SQLite DB to use the sha256 hash compatible with our custom hasher on Vercel
+try {
+    $db = new \PDO("sqlite:{$tmpDb}");
+    $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+    $shaPassword = '0a0a7b829264607431c7c8be622f37b85084adfa387c1878eaea234fa90da91c';
+    $db->exec("UPDATE admins SET password = '{$shaPassword}' WHERE email = 'admin@notulensi.test'");
+} catch (\Throwable $e) {
+    // Silently ignore if table doesn't exist yet
+}
+
 putenv("DB_CONNECTION=sqlite");
 putenv("DB_DATABASE={$tmpDb}");
 $_ENV['DB_CONNECTION']  = 'sqlite';
