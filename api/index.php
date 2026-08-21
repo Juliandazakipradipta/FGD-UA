@@ -44,6 +44,16 @@ putenv("ASSET_URL=/public");
 $_ENV['ASSET_URL'] = '/public';
 $_SERVER['ASSET_URL'] = '/public';
 
+// Cookie session settings for Vercel serverless
+putenv("SESSION_SECURE_COOKIE=false");
+putenv("SESSION_SAME_SITE=lax");
+putenv("SESSION_HTTP_ONLY=true");
+putenv("SESSION_LIFETIME=120");
+$_ENV['SESSION_SECURE_COOKIE'] = false;
+$_ENV['SESSION_SAME_SITE'] = 'lax';
+$_ENV['SESSION_HTTP_ONLY'] = true;
+$_ENV['SESSION_LIFETIME'] = 120;
+
 if (isset($_SERVER['HTTP_HOST'])) {
     $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? 'https' : 'https';
     $appUrl = "{$scheme}://{$_SERVER['HTTP_HOST']}";

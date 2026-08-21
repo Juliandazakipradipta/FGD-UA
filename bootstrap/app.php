@@ -17,6 +17,14 @@ $app = Application::configure(basePath: dirname(__DIR__))
                 ? route('admin.login')
                 : route('home');
         });
+
+        // Exclude admin login & notulensi form from CSRF on Vercel
+        // (serverless stateless environment causes session cookie mismatch)
+        $middleware->validateCsrfTokens(except: [
+            'admin/login',
+            'notulensi/*',
+            'form/*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
@@ -25,3 +33,4 @@ $app = Application::configure(basePath: dirname(__DIR__))
     })->create();
 
 return $app;
+
