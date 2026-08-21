@@ -1,5 +1,6 @@
 <?php
 
+// Trigger clean redeployment on Vercel
 // 1. Prepare writable /tmp directories
 $tmpStorage   = '/tmp/storage';
 $tmpBootstrap = '/tmp/bootstrap';
