@@ -21,6 +21,7 @@
         @endif
     @else
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @endif
     <style>
         *, *:focus, *:focus-visible {
             outline: none !important;
