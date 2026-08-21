@@ -168,15 +168,16 @@ $app->useBootstrapPath($tmpBootstrap);
 
 $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
 
-// Auto-migrate & seed database if using Supabase/External DB and tables are not initialized yet
+// Boot app & auto-migrate database if using Supabase/External DB and tables are not initialized yet
 if (!empty($externalConn) && $externalConn !== 'sqlite') {
     try {
+        $app->boot();
         if (!\Illuminate\Support\Facades\Schema::hasTable('admins')) {
             \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
             \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
         }
     } catch (\Throwable $e) {
-        // Ignore if DB connection is initializing
+        // Silently swallow errors during background migration checks to prevent 500 Server Error
     }
 }
 
