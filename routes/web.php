@@ -27,6 +27,7 @@ Route::get('/notulensi/berhasil', [PublicMinuteController::class, 'success'])
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', fn () => redirect()->route('admin.dashboard'));
 
     // Guest admin (belum login)
     Route::middleware('guest:admin')->group(function () {

@@ -18,6 +18,10 @@ $app = Application::configure(basePath: dirname(__DIR__))
                 : route('home');
         });
 
+        $middleware->redirectUsersTo(function ($request) {
+            return route('admin.dashboard');
+        });
+
         // Exclude admin & notulensi form routes from CSRF on Vercel
         // (serverless stateless environment causes session cookie mismatch)
         $middleware->validateCsrfTokens(except: [
