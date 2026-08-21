@@ -21,7 +21,17 @@
         @endif
     @else
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @endif
+    <style>
+        *, *:focus, *:focus-visible {
+            outline: none !important;
+        }
+        input:focus, select:focus, textarea:focus, button:focus {
+            outline: none !important;
+            outline-offset: 0 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25) !important;
+            border-color: #059669 !important;
+        }
+    </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
     

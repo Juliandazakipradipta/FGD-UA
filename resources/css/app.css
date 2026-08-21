@@ -45,3 +45,19 @@ h1, h2, h3, h4, .font-heading {
 .animate-pulse-glow {
     animation: pulseGlow 6s ease-in-out infinite;
 }
+
+/* Eliminate default black outlines on click/focus across all browsers */
+*, *:focus, *:focus-visible {
+    outline: none !important;
+}
+
+input:focus, 
+select:focus, 
+textarea:focus, 
+button:focus,
+[contenteditable="true"]:focus {
+    outline: none !important;
+    outline-offset: 0 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25) !important;
+    border-color: #059669 !important;
+}
