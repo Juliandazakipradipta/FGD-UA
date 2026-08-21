@@ -38,6 +38,19 @@ putenv("SESSION_DRIVER=cookie");
 putenv("APP_MAINTENANCE_DRIVER=cache");
 putenv("APP_MAINTENANCE_STORE=array");
 
+// Force relative asset URL so CSS/JS load cleanly on all devices
+putenv("ASSET_URL=/");
+$_ENV['ASSET_URL'] = '/';
+$_SERVER['ASSET_URL'] = '/';
+
+if (isset($_SERVER['HTTP_HOST'])) {
+    $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? 'https' : 'https';
+    $appUrl = "{$scheme}://{$_SERVER['HTTP_HOST']}";
+    putenv("APP_URL={$appUrl}");
+    $_ENV['APP_URL'] = $appUrl;
+    $_SERVER['APP_URL'] = $appUrl;
+}
+
 $_ENV['VERCEL']                 = '1';
 $_ENV['APP_ENV']                = 'production';
 $_ENV['APP_STORAGE_PATH']       = $tmpStorage;
