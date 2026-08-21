@@ -17,9 +17,9 @@ foreach ($tmpDirs as $dir) {
 
 // Copy sqlite database if it doesn't exist in /tmp
 $tmpDb = '/tmp/database/database.sqlite';
-if (!file_exists($tmpDb)) {
+if (!file_exists($tmpDb) || filesize($tmpDb) === 0) {
     $sourceDb = __DIR__ . '/../database/database.sqlite';
-    if (file_exists($sourceDb)) {
+    if (file_exists($sourceDb) && filesize($sourceDb) > 0) {
         @copy($sourceDb, $tmpDb);
     } else {
         @touch($tmpDb);
@@ -28,6 +28,15 @@ if (!file_exists($tmpDb)) {
 
 putenv("DB_DATABASE={$tmpDb}");
 $_ENV['DB_DATABASE'] = $tmpDb;
+$_SERVER['DB_DATABASE'] = $tmpDb;
+
+// Ensure APP_KEY is available
+if (!getenv('APP_KEY') && empty($_ENV['APP_KEY'])) {
+    $key = 'base64:4Mo3JcKI/HpmRzc3dsVG8GsiLl+JRYtFz60B75D8tBc=';
+    putenv("APP_KEY={$key}");
+    $_ENV['APP_KEY'] = $key;
+    $_SERVER['APP_KEY'] = $key;
+}
 
 // Forward requests to Laravel's public/index.php
 require __DIR__ . '/../public/index.php';
