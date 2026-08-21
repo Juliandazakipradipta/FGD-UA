@@ -30,14 +30,18 @@ putenv("VIEW_COMPILED_PATH=/tmp/views");
 putenv("LOG_CHANNEL=stderr");
 putenv("CACHE_STORE=array");
 putenv("SESSION_DRIVER=cookie");
+putenv("APP_MAINTENANCE_DRIVER=cache");
+putenv("APP_MAINTENANCE_STORE=array");
 
-$_ENV['VERCEL']             = '1';
-$_ENV['APP_ENV']            = 'production';
-$_ENV['APP_STORAGE_PATH']   = $tmpStorage;
-$_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
-$_ENV['LOG_CHANNEL']        = 'stderr';
-$_ENV['CACHE_STORE']        = 'array';
-$_ENV['SESSION_DRIVER']     = 'cookie';
+$_ENV['VERCEL']                 = '1';
+$_ENV['APP_ENV']                = 'production';
+$_ENV['APP_STORAGE_PATH']       = $tmpStorage;
+$_ENV['VIEW_COMPILED_PATH']     = '/tmp/views';
+$_ENV['LOG_CHANNEL']            = 'stderr';
+$_ENV['CACHE_STORE']            = 'array';
+$_ENV['SESSION_DRIVER']         = 'cookie';
+$_ENV['APP_MAINTENANCE_DRIVER'] = 'cache';
+$_ENV['APP_MAINTENANCE_STORE']  = 'array';
 
 // 3. Fallback APP_KEY if needed
 if (!getenv('APP_KEY')) {
