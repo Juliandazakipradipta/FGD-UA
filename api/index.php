@@ -30,8 +30,8 @@ if (file_exists(__DIR__ . '/../public/hot')) {
 
 // 2. Set environment variables for Vercel Serverless
 putenv("VERCEL=1");
-putenv("APP_ENV=local");
-putenv("APP_DEBUG=true");
+putenv("APP_ENV=production");
+putenv("APP_DEBUG=false");
 putenv("APP_STORAGE_PATH={$tmpStorage}");
 putenv("VIEW_COMPILED_PATH=/tmp/views");
 putenv("LOG_CHANNEL=stderr");
@@ -41,8 +41,8 @@ putenv("APP_MAINTENANCE_DRIVER=file");
 putenv("ASSET_URL=/public");
 
 $_ENV['VERCEL']                 = '1';
-$_ENV['APP_ENV']                = 'local';
-$_ENV['APP_DEBUG']              = 'true';
+$_ENV['APP_ENV']                = 'production';
+$_ENV['APP_DEBUG']              = 'false';
 $_ENV['APP_STORAGE_PATH']       = $tmpStorage;
 $_ENV['VIEW_COMPILED_PATH']     = '/tmp/views';
 $_ENV['LOG_CHANNEL']            = 'stderr';
@@ -52,8 +52,8 @@ $_ENV['APP_MAINTENANCE_DRIVER'] = 'file';
 $_ENV['ASSET_URL']              = '/public';
 
 $_SERVER['VERCEL']                 = '1';
-$_SERVER['APP_ENV']                = 'local';
-$_SERVER['APP_DEBUG']              = 'true';
+$_SERVER['APP_ENV']                = 'production';
+$_SERVER['APP_DEBUG']              = 'false';
 $_SERVER['APP_STORAGE_PATH']       = $tmpStorage;
 $_SERVER['VIEW_COMPILED_PATH']     = '/tmp/views';
 $_SERVER['LOG_CHANNEL']            = 'stderr';
@@ -145,16 +145,18 @@ $app->useBootstrapPath($tmpBootstrap);
 
 $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
 
-// Boot app & auto-migrate database if using Supabase/External DB and tables are not initialized yet
+// Boot app & auto-migrate database if using Supabase/External DB
 if (!empty($externalConn) && $externalConn !== 'sqlite') {
     try {
         $app->boot();
-        if (!\Illuminate\Support\Facades\Schema::hasTable('admins') || !\Illuminate\Support\Facades\Schema::hasTable('groups')) {
-            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-            \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-        }
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        try {
+            if (\Illuminate\Support\Facades\DB::table('admins')->count() === 0) {
+                \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+            }
+        } catch (\Throwable $e) {}
     } catch (\Throwable $e) {
-        // Silently swallow errors during background migration checks to prevent 500 Server Error
+        // Silently handle DB init
     }
 }
 
