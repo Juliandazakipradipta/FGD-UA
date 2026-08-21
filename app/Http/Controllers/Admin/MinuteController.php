@@ -40,18 +40,27 @@ class MinuteController extends Controller
         return view('admin.minutes.index', compact('minutes', 'groups'));
     }
 
-    public function show(Minute $minute): View
+    public function show($id)
     {
-        $minute->load('group');
+        $minute = Minute::with('group')->find($id);
+
+        if (!$minute) {
+            return redirect()->route('admin.minutes.index')->with('status', 'Data notulensi tidak ditemukan atau sudah diperbarui.');
+        }
 
         return view('admin.minutes.show', compact('minute'));
     }
 
-    public function destroy(Minute $minute): RedirectResponse
+    public function destroy($id): RedirectResponse
     {
-        $minute->delete();
+        $minute = Minute::find($id);
 
-        return back()->with('status', 'Notulensi berhasil dihapus.');
+        if ($minute) {
+            $minute->delete();
+            return back()->with('status', 'Notulensi berhasil dihapus.');
+        }
+
+        return back()->with('status', 'Notulensi sudah dihapus atau tidak ditemukan.');
     }
 
     /**

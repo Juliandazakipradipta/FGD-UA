@@ -29,10 +29,15 @@ class GroupController extends Controller
         return back()->with('status', 'Grup berhasil ditambahkan.');
     }
 
-    public function destroy(Group $group): RedirectResponse
+    public function destroy($id): RedirectResponse
     {
-        $group->delete();
+        $group = Group::find($id);
 
-        return back()->with('status', 'Grup berhasil dihapus.');
+        if ($group) {
+            $group->delete();
+            return back()->with('status', 'Grup berhasil dihapus.');
+        }
+
+        return back()->with('status', 'Grup sudah dihapus atau tidak ditemukan.');
     }
 }
