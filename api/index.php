@@ -1,7 +1,9 @@
 <?php
 
 // 1. Prepare writable /tmp directories
-$tmpStorage = '/tmp/storage';
+$tmpStorage   = '/tmp/storage';
+$tmpBootstrap = '/tmp/bootstrap/cache';
+
 $dirs = [
     $tmpStorage . '/app/public',
     $tmpStorage . '/framework/cache/data',
@@ -9,6 +11,7 @@ $dirs = [
     $tmpStorage . '/framework/testing',
     $tmpStorage . '/framework/views',
     $tmpStorage . '/logs',
+    $tmpBootstrap,
     '/tmp/views',
     '/tmp/database',
 ];
@@ -19,24 +22,34 @@ foreach ($dirs as $dir) {
     }
 }
 
-// 2. Set environment variables
+// 2. Set environment variables for storage and bootstrap caching
 putenv("VERCEL=1");
 putenv("APP_ENV=production");
-putenv("APP_DEBUG=true");
 putenv("APP_STORAGE_PATH={$tmpStorage}");
 putenv("VIEW_COMPILED_PATH=/tmp/views");
 putenv("LOG_CHANNEL=stderr");
 putenv("CACHE_STORE=array");
 putenv("SESSION_DRIVER=cookie");
 
-$_ENV['VERCEL']           = '1';
-$_ENV['APP_ENV']         = 'production';
-$_ENV['APP_DEBUG']       = 'true';
-$_ENV['APP_STORAGE_PATH'] = $tmpStorage;
+putenv("APP_SERVICES_CACHE={$tmpBootstrap}/services.php");
+putenv("APP_PACKAGES_CACHE={$tmpBootstrap}/packages.php");
+putenv("APP_ROUTES_CACHE={$tmpBootstrap}/routes.php");
+putenv("APP_CONFIG_CACHE={$tmpBootstrap}/config.php");
+putenv("APP_EVENTS_CACHE={$tmpBootstrap}/events.php");
+
+$_ENV['VERCEL']             = '1';
+$_ENV['APP_ENV']            = 'production';
+$_ENV['APP_STORAGE_PATH']   = $tmpStorage;
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
-$_ENV['LOG_CHANNEL']      = 'stderr';
-$_ENV['CACHE_STORE']      = 'array';
-$_ENV['SESSION_DRIVER']   = 'cookie';
+$_ENV['LOG_CHANNEL']        = 'stderr';
+$_ENV['CACHE_STORE']        = 'array';
+$_ENV['SESSION_DRIVER']     = 'cookie';
+
+$_ENV['APP_SERVICES_CACHE'] = "{$tmpBootstrap}/services.php";
+$_ENV['APP_PACKAGES_CACHE'] = "{$tmpBootstrap}/packages.php";
+$_ENV['APP_ROUTES_CACHE']   = "{$tmpBootstrap}/routes.php";
+$_ENV['APP_CONFIG_CACHE']   = "{$tmpBootstrap}/config.php";
+$_ENV['APP_EVENTS_CACHE']   = "{$tmpBootstrap}/events.php";
 
 // 3. Fallback APP_KEY if needed
 if (!getenv('APP_KEY')) {
@@ -64,28 +77,16 @@ $_ENV['DB_CONNECTION']  = 'sqlite';
 $_ENV['DB_DATABASE']    = $tmpDb;
 $_SERVER['DB_DATABASE'] = $tmpDb;
 
-try {
-    define('LARAVEL_START', microtime(true));
-    require __DIR__ . '/../vendor/autoload.php';
+// 5. Bootstrap Laravel and handle request
+define('LARAVEL_START', microtime(true));
+require __DIR__ . '/../vendor/autoload.php';
 
-    /** @var \Illuminate\Foundation\Application $app */
-    $app = require_once __DIR__ . '/../bootstrap/app.php';
-    $app->useStoragePath('/tmp/storage');
+/** @var \Illuminate\Foundation\Application $app */
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+$app->useStoragePath($tmpStorage);
 
-    // Register essential providers early so error handler can use them
-    $app->register(new \Illuminate\Filesystem\FilesystemServiceProvider($app));
-    $app->register(new \Illuminate\View\ViewServiceProvider($app));
-    $app->register(new \Illuminate\Database\DatabaseServiceProvider($app));
-
-    $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
-    $request = \Illuminate\Http\Request::capture();
-    $response = $kernel->handle($request);
-    $response->send();
-    $kernel->terminate($request, $response);
-} catch (\Throwable $e) {
-    http_response_code(500);
-    echo "<h1>BOOTSTRAP CRASH REVEALED</h1>";
-    echo "<h2>" . get_class($e) . ": " . htmlspecialchars($e->getMessage()) . "</h2>";
-    echo "<p>File: " . htmlspecialchars($e->getFile()) . ":" . $e->getLine() . "</p>";
-    echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
-}
+$kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
+$request = \Illuminate\Http\Request::capture();
+$response = $kernel->handle($request);
+$response->send();
+$kernel->terminate($request, $response);
