@@ -21,6 +21,8 @@ foreach ($dirs as $dir) {
 
 // 2. Set environment variables
 putenv("VERCEL=1");
+putenv("APP_ENV=production");
+putenv("APP_DEBUG=true");
 putenv("APP_STORAGE_PATH={$tmpStorage}");
 putenv("VIEW_COMPILED_PATH=/tmp/views");
 putenv("LOG_CHANNEL=stderr");
@@ -28,6 +30,8 @@ putenv("CACHE_STORE=array");
 putenv("SESSION_DRIVER=cookie");
 
 $_ENV['VERCEL']           = '1';
+$_ENV['APP_ENV']         = 'production';
+$_ENV['APP_DEBUG']       = 'true';
 $_ENV['APP_STORAGE_PATH'] = $tmpStorage;
 $_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
 $_ENV['LOG_CHANNEL']      = 'stderr';
@@ -60,5 +64,20 @@ $_ENV['DB_CONNECTION']  = 'sqlite';
 $_ENV['DB_DATABASE']    = $tmpDb;
 $_SERVER['DB_DATABASE'] = $tmpDb;
 
-// 5. Delegate to public/index.php
-require __DIR__ . '/../public/index.php';
+try {
+    define('LARAVEL_START', microtime(true));
+    require __DIR__ . '/../vendor/autoload.php';
+
+    /** @var \Illuminate\Foundation\Application $app */
+    $app = require_once __DIR__ . '/../bootstrap/app.php';
+    $app->useStoragePath('/tmp/storage');
+
+    $request = \Illuminate\Http\Request::capture();
+    $response = $app->handleRequest($request);
+    $response->send();
+} catch (\Throwable $e) {
+    http_response_code(500);
+    echo "ERROR: " . $e->getMessage() . "\n";
+    echo "FILE: " . $e->getFile() . ":" . $e->getLine() . "\n\n";
+    echo $e->getTraceAsString();
+}
