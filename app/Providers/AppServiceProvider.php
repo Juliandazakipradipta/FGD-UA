@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS on Vercel so form actions and redirects always use https://
+        if (getenv('VERCEL') || isset($_ENV['VERCEL'])) {
+            URL::forceScheme('https');
+        }
+
         // High-concurrency optimization for SQLite (WAL Mode & Busy Timeout)
         if (config('database.default') === 'sqlite' && !getenv('VERCEL') && !isset($_ENV['VERCEL'])) {
             try {
