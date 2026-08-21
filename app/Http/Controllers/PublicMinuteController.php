@@ -16,15 +16,18 @@ class PublicMinuteController extends Controller
     public function create(): View
     {
         try {
-            $groups = Group::orderBy('id')->get();
-            if ($groups->isEmpty()) {
-                for ($i = 1; $i <= 15; $i++) {
-                    Group::firstOrCreate(['name' => "Grup {$i}"]);
+            $groups = \Illuminate\Support\Facades\Cache::remember('fgd_groups_list', 300, function () {
+                $g = Group::orderBy('id')->get();
+                if ($g->isEmpty()) {
+                    for ($i = 1; $i <= 15; $i++) {
+                        Group::firstOrCreate(['name' => "Grup {$i}"]);
+                    }
+                    $g = Group::orderBy('id')->get();
                 }
-                $groups = Group::orderBy('id')->get();
-            }
+                return $g;
+            });
         } catch (\Throwable $e) {
-            // Instant fail-safe fallback if Supabase DB connection is waking up
+            // Instant 0ms fallback if Supabase DB connection is waking up
             $groups = collect(range(1, 15))->map(fn($i) => (object)['id' => $i, 'name' => "Grup {$i}"]);
         }
         
