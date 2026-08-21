@@ -1,8 +1,16 @@
 <?php
 
+putenv("VERCEL=1");
+$_ENV['VERCEL'] = '1';
+$_SERVER['VERCEL'] = '1';
+
+putenv("LOG_CHANNEL=stderr");
+$_ENV['LOG_CHANNEL'] = 'stderr';
+$_SERVER['LOG_CHANNEL'] = 'stderr';
+
 // Prepare writable /tmp directories required for Vercel serverless environment
 $tmpDirs = [
-    '/tmp/views',
+    '/tmp/storage/logs',
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache',
     '/tmp/storage/framework/sessions',
