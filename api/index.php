@@ -22,6 +22,11 @@ foreach ($dirs as $dir) {
     }
 }
 
+// Remove public/hot if present to force Vite production mode
+if (file_exists(__DIR__ . '/../public/hot')) {
+    @unlink(__DIR__ . '/../public/hot');
+}
+
 // 2. Set environment variables
 putenv("VERCEL=1");
 putenv("APP_ENV=production");
