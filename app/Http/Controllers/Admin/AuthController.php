@@ -52,23 +52,26 @@ class AuthController extends Controller
         }
 
         $authenticated = false;
+        $salt = 'ululalbab_cai47_fgd_salt';
 
-        // Try SHA-256 verification first (Vercel-compatible, no bcrypt needed)
-        if (hash('sha256', $password) === $admin->password) {
+        // Try SHA-256 + salt verification (Vercel-compatible, no bcrypt needed)
+        if (hash('sha256', $password . $salt) === $admin->password) {
             $authenticated = true;
         }
 
-        // Fallback: try bcrypt (for local dev or legacy passwords)
+        // Fallback: try SHA-256 without salt (older seeded passwords)
+        if (!$authenticated && hash('sha256', $password) === $admin->password) {
+            $authenticated = true;
+        }
+
+        // Fallback: try bcrypt (for local dev passwords)
         if (!$authenticated) {
             try {
                 if (password_verify($password, $admin->password)) {
                     $authenticated = true;
-                    // Migrate password to SHA-256 for next login
-                    $admin->password = hash('sha256', $password);
-                    $admin->save();
                 }
             } catch (\Throwable $e) {
-                // bcrypt not available on this host
+                // bcrypt not available on Vercel
             }
         }
 

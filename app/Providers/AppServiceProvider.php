@@ -13,6 +13,15 @@ class AppServiceProvider extends ServiceProvider
         if (getenv('VERCEL') || isset($_ENV['VERCEL'])) {
             $this->app->useStoragePath('/tmp/storage');
             $this->app->useBootstrapPath('/tmp/bootstrap');
+
+            // Override hashing to SHA-256 (Vercel PHP has no bcrypt/libssl support)
+            config(['hashing.driver' => 'sha256']);
+            $this->app->extend('hash', function ($hash, $app) {
+                $hash->extend('sha256', function () {
+                    return new \App\Hashing\Sha256Hasher();
+                });
+                return $hash;
+            });
         }
     }
 
@@ -92,18 +101,19 @@ class AppServiceProvider extends ServiceProvider
                 }
 
                 // Seed Admins if admins table is empty, or fix password hashing
+                $salt = 'ululalbab_cai47_fgd_salt';
                 $admins = [
                     ['name' => 'Super Admin', 'email' => 'admin@notulensi.test', 'pass' => 'admin123', 'scope' => 'all'],
                     ['name' => 'Admin ULUL ALBAB', 'email' => 'ululalbab@notulensi.test', 'pass' => 'UA123', 'scope' => 'ulul_albab'],
                     ['name' => 'Admin Perumnas 2', 'email' => 'perumnas2@notulensi.test', 'pass' => 'perumnas123', 'scope' => 'perumnas_2'],
                 ];
                 foreach ($admins as $a) {
-                    // Use SHA-256 because Vercel PHP does not have bcrypt/libssl
-                    $hashed = hash('sha256', $a['pass']);
+                    // Use SHA-256 + salt (matches Sha256Hasher::make)
+                    $hashed = hash('sha256', $a['pass'] . $salt);
                     $check = $pdo->prepare("SELECT id FROM admins WHERE email = ?");
                     $check->execute([$a['email']]);
                     if ($check->fetchColumn()) {
-                        // Update to SHA-256 hash
+                        // Always update to ensure correct hash format
                         $stmt = $pdo->prepare("UPDATE admins SET password = ? WHERE email = ?");
                         $stmt->execute([$hashed, $a['email']]);
                     } else {
