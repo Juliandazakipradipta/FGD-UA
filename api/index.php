@@ -18,8 +18,9 @@ $dirs = [
 
 foreach ($dirs as $dir) {
     if (!is_dir($dir)) {
-        @mkdir($dir, 0755, true);
+        @mkdir($dir, 0777, true);
     }
+    @chmod($dir, 0777);
 }
 
 // Remove public/hot if present to force Vite production mode
@@ -92,6 +93,10 @@ if (!file_exists($tmpDb) || filesize($tmpDb) === 0) {
         @touch($tmpDb);
     }
 }
+
+// Ensure database file and directory are fully writable
+@chmod($tmpDb, 0666);
+@chmod(dirname($tmpDb), 0777);
 
 putenv("DB_CONNECTION=sqlite");
 putenv("DB_DATABASE={$tmpDb}");
