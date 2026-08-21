@@ -37,6 +37,7 @@ putenv("VIEW_COMPILED_PATH=/tmp/views");
 putenv("LOG_CHANNEL=stderr");
 putenv("CACHE_STORE=array");
 putenv("SESSION_DRIVER=cookie");
+putenv("APP_MAINTENANCE_DRIVER=file");
 putenv("ASSET_URL=/public");
 
 $_ENV['VERCEL']                 = '1';
@@ -47,6 +48,7 @@ $_ENV['VIEW_COMPILED_PATH']     = '/tmp/views';
 $_ENV['LOG_CHANNEL']            = 'stderr';
 $_ENV['CACHE_STORE']            = 'array';
 $_ENV['SESSION_DRIVER']         = 'cookie';
+$_ENV['APP_MAINTENANCE_DRIVER'] = 'file';
 $_ENV['ASSET_URL']              = '/public';
 
 $_SERVER['VERCEL']                 = '1';
@@ -57,6 +59,7 @@ $_SERVER['VIEW_COMPILED_PATH']     = '/tmp/views';
 $_SERVER['LOG_CHANNEL']            = 'stderr';
 $_SERVER['CACHE_STORE']            = 'array';
 $_SERVER['SESSION_DRIVER']         = 'cookie';
+$_SERVER['APP_MAINTENANCE_DRIVER'] = 'file';
 $_SERVER['ASSET_URL']              = '/public';
 
 // 3. Fallback APP_KEY if needed
