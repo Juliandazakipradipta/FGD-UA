@@ -36,7 +36,7 @@ putenv("APP_STORAGE_PATH={$tmpStorage}");
 putenv("VIEW_COMPILED_PATH=/tmp/views");
 putenv("LOG_CHANNEL=stderr");
 putenv("CACHE_STORE=array");
-putenv("SESSION_DRIVER=cookie");
+putenv("SESSION_DRIVER=database");
 putenv("APP_MAINTENANCE_DRIVER=file");
 putenv("ASSET_URL=/public");
 
@@ -47,7 +47,7 @@ $_ENV['APP_STORAGE_PATH']       = $tmpStorage;
 $_ENV['VIEW_COMPILED_PATH']     = '/tmp/views';
 $_ENV['LOG_CHANNEL']            = 'stderr';
 $_ENV['CACHE_STORE']            = 'array';
-$_ENV['SESSION_DRIVER']         = 'cookie';
+$_ENV['SESSION_DRIVER']         = 'database';
 $_ENV['APP_MAINTENANCE_DRIVER'] = 'file';
 $_ENV['ASSET_URL']              = '/public';
 
@@ -58,7 +58,7 @@ $_SERVER['APP_STORAGE_PATH']       = $tmpStorage;
 $_SERVER['VIEW_COMPILED_PATH']     = '/tmp/views';
 $_SERVER['LOG_CHANNEL']            = 'stderr';
 $_SERVER['CACHE_STORE']            = 'array';
-$_SERVER['SESSION_DRIVER']         = 'cookie';
+$_SERVER['SESSION_DRIVER']         = 'database';
 $_SERVER['APP_MAINTENANCE_DRIVER'] = 'file';
 $_SERVER['ASSET_URL']              = '/public';
 

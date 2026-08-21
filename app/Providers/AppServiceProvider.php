@@ -47,6 +47,15 @@ class AppServiceProvider extends ServiceProvider
                         updated_at TIMESTAMP NULL
                     );
 
+                    CREATE TABLE IF NOT EXISTS sessions (
+                        id VARCHAR(255) NOT NULL PRIMARY KEY,
+                        user_id BIGINT NULL,
+                        ip_address VARCHAR(45) NULL,
+                        user_agent TEXT NULL,
+                        payload TEXT NOT NULL,
+                        last_activity INTEGER NOT NULL
+                    );
+
                     CREATE TABLE IF NOT EXISTS minutes (
                         id BIGSERIAL PRIMARY KEY,
                         group_id BIGINT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
