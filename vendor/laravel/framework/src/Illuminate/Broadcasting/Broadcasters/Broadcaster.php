@@ -42,7 +42,7 @@ abstract class Broadcaster implements BroadcasterContract
     /**
      * The binding registrar instance.
      *
-     * @var \Illuminate\Contracts\Routing\BindingRegistrar|null
+     * @var \Illuminate\Contracts\Routing\BindingRegistrar
      */
     protected $bindingRegistrar;
 
@@ -293,7 +293,7 @@ abstract class Broadcaster implements BroadcasterContract
     /**
      * Get the model binding registrar instance.
      *
-     * @return \Illuminate\Contracts\Routing\BindingRegistrar|null
+     * @return \Illuminate\Contracts\Routing\BindingRegistrar
      */
     protected function binder()
     {

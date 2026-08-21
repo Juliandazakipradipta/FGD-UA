@@ -6,8 +6,6 @@ use Aws\S3\S3Client;
 use Closure;
 use Illuminate\Contracts\Filesystem\Factory as FactoryContract;
 use Illuminate\Support\Arr;
-use Illuminate\Support\RebindsCallbacksToSelf;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
 use League\Flysystem\AwsS3V3\AwsS3V3Adapter as S3Adapter;
 use League\Flysystem\AwsS3V3\PortableVisibilityConverter as AwsS3PortableVisibilityConverter;
@@ -22,8 +20,6 @@ use League\Flysystem\PhpseclibV3\SftpConnectionProvider;
 use League\Flysystem\ReadOnly\ReadOnlyFilesystemAdapter;
 use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 use League\Flysystem\Visibility;
-use ReflectionException;
-use RuntimeException;
 
 use function Illuminate\Support\enum_value;
 
@@ -33,8 +29,6 @@ use function Illuminate\Support\enum_value;
  */
 class FilesystemManager implements FactoryContract
 {
-    use RebindsCallbacksToSelf;
-
     /**
      * The application instance.
      *
@@ -69,7 +63,7 @@ class FilesystemManager implements FactoryContract
     /**
      * Get a filesystem instance.
      *
-     * @param  \UnitEnum|string|null  $name
+     * @param  string|null  $name
      * @return \Illuminate\Contracts\Filesystem\Filesystem
      */
     public function drive($name = null)
@@ -150,7 +144,7 @@ class FilesystemManager implements FactoryContract
             return $this->callCustomCreator($config);
         }
 
-        $driverMethod = 'create'.Str::studly($driver).'Driver';
+        $driverMethod = 'create'.ucfirst($driver).'Driver';
 
         if (! method_exists($this, $driverMethod)) {
             throw new InvalidArgumentException("Driver [{$driver}] is not supported.");
@@ -264,49 +258,6 @@ class FilesystemManager implements FactoryContract
 
         return new AwsS3V3Adapter(
             $this->createFlysystem($adapter, $config), $adapter, $s3Config, $client
-        );
-    }
-
-    /**
-     * Create a read-through filesystem driver.
-     *
-     * @param  array  $config
-     * @param  string  $name
-     * @return \Illuminate\Contracts\Filesystem\Filesystem
-     */
-    public function createReadThroughDriver(array $config, string $name = 'read-through')
-    {
-        if (empty($config['primary'])) {
-            throw new InvalidArgumentException('Read-through disk is missing "primary" configuration option.');
-        } elseif (empty($config['fallback'])) {
-            throw new InvalidArgumentException('Read-through disk is missing "fallback" configuration option.');
-        } elseif ($config['primary'] === $config['fallback']) {
-            throw new InvalidArgumentException('Read-through disk requires distinct "primary" and "fallback" disks.');
-        } elseif ($config['primary'] === $name || $config['fallback'] === $name) {
-            throw new InvalidArgumentException("Read-through disk [{$name}] cannot reference itself.");
-        }
-
-        $primary = is_array($config['primary'])
-            ? $this->build($config['primary'])
-            : $this->disk($config['primary']);
-
-        $fallback = is_array($config['fallback'])
-            ? $this->build($config['fallback'])
-            : $this->disk($config['fallback']);
-
-        $adapter = new ReadThroughFilesystemAdapter(
-            $primary->getDriver(),
-            $fallback->getDriver(),
-            $config['throw_on_promotion_failure'] ?? false,
-            $config['copy'] ?? true,
-        );
-
-        return new ReadThroughFilesystem(
-            $this->createFlysystem($adapter, $config),
-            $primary->getAdapter(),
-            array_replace($primary->getConfig(), $config),
-            $primary,
-            $fallback,
         );
     }
 
@@ -481,19 +432,10 @@ class FilesystemManager implements FactoryContract
      *
      * @param  string  $driver
      * @param  \Closure  $callback
-     *
-     * @param-closure-this  $this  $callback
-     *
      * @return $this
      */
     public function extend($driver, Closure $callback)
     {
-        try {
-            $callback = $this->bindCallbackToSelf($callback) ?? throw new RuntimeException('Unable to bind custom driver callback');
-        } catch (ReflectionException $e) {
-            throw new RuntimeException('Unable to bind custom driver callback', previous: $e);
-        }
-
         $this->customCreators[$driver] = $callback;
 
         return $this;

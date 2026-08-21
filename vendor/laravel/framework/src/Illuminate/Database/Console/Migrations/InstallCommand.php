@@ -5,16 +5,17 @@ namespace Illuminate\Database\Console\Migrations;
 use Illuminate\Console\Command;
 use Illuminate\Database\Migrations\MigrationRepositoryInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'migrate:install')]
 class InstallCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'migrate:install {--database= : The database connection to use}';
+    protected $name = 'migrate:install';
 
     /**
      * The console command description.
@@ -56,5 +57,17 @@ class InstallCommand extends Command
         }
 
         $this->components->info('Migration table created successfully.');
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use'],
+        ];
     }
 }

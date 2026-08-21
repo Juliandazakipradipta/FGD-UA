@@ -35,7 +35,7 @@ class DatabaseNotification extends Model
     /**
      * The guarded attributes on the model.
      *
-     * @var array<string>
+     * @var array
      */
     protected $guarded = [];
 

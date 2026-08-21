@@ -4,18 +4,17 @@ namespace Illuminate\Foundation\Console;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'make:event')]
 class EventMakeCommand extends GeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:event
-                    {name : The name of the event}
-                    {--f|force : Create the class even if the event already exists}';
+    protected $name = 'make:event';
 
     /**
      * The console command description.
@@ -75,5 +74,17 @@ class EventMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace.'\Events';
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the event already exists'],
+        ];
     }
 }

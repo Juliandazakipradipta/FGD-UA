@@ -11,11 +11,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class ScheduleInterruptCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'schedule:interrupt';
+    protected $name = 'schedule:interrupt';
 
     /**
      * The console command description.

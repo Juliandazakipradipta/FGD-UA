@@ -2,20 +2,11 @@
 
 namespace Illuminate\Http\Resources;
 
-use Illuminate\Http\Resources\Attributes\PreserveKeys;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Stringable;
-use ReflectionClass;
 
 trait ConditionallyLoadsAttributes
 {
-    /**
-     * The cached preserve keys attribute values.
-     *
-     * @var array<class-string, bool>
-     */
-    protected static $cachedPreserveKeysAttributes = [];
-
     /**
      * Filter the given data, removing any optional values.
      *
@@ -92,14 +83,6 @@ trait ConditionallyLoadsAttributes
             } else {
                 $numericKeys = $numericKeys && is_numeric($key);
             }
-        }
-
-        if (! array_key_exists(static::class, static::$cachedPreserveKeysAttributes)) {
-            static::$cachedPreserveKeysAttributes[static::class] = (new ReflectionClass($this))->getAttributes(PreserveKeys::class) !== [];
-        }
-
-        if (static::$cachedPreserveKeysAttributes[static::class]) {
-            return $data;
         }
 
         if (property_exists($this, 'preserveKeys') && $this->preserveKeys === true) {
@@ -225,7 +208,7 @@ trait ConditionallyLoadsAttributes
      */
     protected function whenNull($value, $default = new MissingValue)
     {
-        $arguments = func_num_args() === 1 ? [$value] : [$value, $default];
+        $arguments = func_num_args() == 1 ? [$value] : [$value, $default];
 
         return $this->when(is_null($value), ...$arguments);
     }
@@ -239,7 +222,7 @@ trait ConditionallyLoadsAttributes
      */
     protected function whenNotNull($value, $default = new MissingValue)
     {
-        $arguments = func_num_args() === 1 ? [$value] : [$value, $default];
+        $arguments = func_num_args() == 1 ? [$value] : [$value, $default];
 
         return $this->when(! is_null($value), ...$arguments);
     }

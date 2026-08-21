@@ -6,6 +6,7 @@ use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use function Laravel\Prompts\select;
@@ -14,16 +15,11 @@ use function Laravel\Prompts\select;
 class TestMakeCommand extends GeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:test
-                    {name : The name of the test}
-                    {--f|force : Create the test even if the test already exists}
-                    {--u|unit : Create a unit test}
-                    {--pest : Create a Pest test}
-                    {--phpunit : Create a PHPUnit test}';
+    protected $name = 'make:test';
 
     /**
      * The console command description.
@@ -102,6 +98,21 @@ class TestMakeCommand extends GeneratorCommand
     protected function rootNamespace()
     {
         return 'Tests';
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the test even if the test already exists'],
+            ['unit', 'u', InputOption::VALUE_NONE, 'Create a unit test'],
+            ['pest', null, InputOption::VALUE_NONE, 'Create a Pest test'],
+            ['phpunit', null, InputOption::VALUE_NONE, 'Create a PHPUnit test'],
+        ];
     }
 
     /**

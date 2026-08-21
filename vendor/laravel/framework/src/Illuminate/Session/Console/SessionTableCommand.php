@@ -11,16 +11,16 @@ use function Illuminate\Filesystem\join_paths;
 class SessionTableCommand extends MigrationGeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:session-table';
+    protected $name = 'make:session-table';
 
     /**
      * The console command name aliases.
      *
-     * @var string[]
+     * @var array
      */
     protected $aliases = ['session:table'];
 
@@ -59,9 +59,15 @@ class SessionTableCommand extends MigrationGeneratorCommand
      */
     protected function migrationExists($table)
     {
-        return array_any([
+        foreach ([
             join_paths($this->laravel->databasePath('migrations'), '*_*_*_*_create_'.$table.'_table.php'),
             join_paths($this->laravel->databasePath('migrations'), '0001_01_01_000000_create_users_table.php'),
-        ], fn ($path) => count($this->files->glob($path)) !== 0);
+        ] as $path) {
+            if (count($this->files->glob($path)) !== 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

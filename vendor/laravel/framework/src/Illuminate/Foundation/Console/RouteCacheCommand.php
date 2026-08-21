@@ -12,11 +12,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class RouteCacheCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'route:cache';
+    protected $name = 'route:cache';
 
     /**
      * The console command description.

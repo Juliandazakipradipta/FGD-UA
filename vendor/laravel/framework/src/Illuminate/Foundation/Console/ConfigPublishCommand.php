@@ -54,7 +54,7 @@ class ConfigPublishCommand extends Command
         if (! is_null($name) && ! isset($config[$name])) {
             $this->components->error('Unrecognized configuration file.');
 
-            return self::FAILURE;
+            return 1;
         }
 
         $this->publish($name, $config[$name], $this->laravel->configPath().'/'.$name.'.php');

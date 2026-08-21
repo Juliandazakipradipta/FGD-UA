@@ -8,6 +8,8 @@ use Illuminate\Console\Prohibitable;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'db:seed')]
 class SeedCommand extends Command
@@ -15,15 +17,11 @@ class SeedCommand extends Command
     use ConfirmableTrait, Prohibitable;
 
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'db:seed
-                    {class? : The class name of the root seeder}
-                    {--class=Database\\Seeders\\DatabaseSeeder : The class name of the root seeder}
-                    {--database= : The database connection to seed}
-                    {--force : Force the operation to run when in production}';
+    protected $name = 'db:seed';
 
     /**
      * The console command description.
@@ -58,8 +56,9 @@ class SeedCommand extends Command
      */
     public function handle()
     {
-        if ($this->isProhibited() || ! $this->confirmToProceed()) {
-            return self::FAILURE;
+        if ($this->isProhibited() ||
+            ! $this->confirmToProceed()) {
+            return Command::FAILURE;
         }
 
         $this->components->info('Seeding database.');
@@ -68,41 +67,15 @@ class SeedCommand extends Command
 
         $this->resolver->setDefaultConnection($this->getDatabase());
 
-        $seeder = $this->getSeeder();
-
-        $requestedClass = $this->input->getArgument('class') ?? $this->input->getOption('class');
-
-        $shouldReportProgress = ! in_array($requestedClass, [
-            'Database\\Seeders\\DatabaseSeeder', 'DatabaseSeeder',
-        ]);
-
-        if ($shouldReportProgress) {
-            $this->components->twoColumnDetail(
-                get_class($seeder), '<fg=yellow;options=bold>RUNNING</>'
-            );
-        }
-
-        $startTime = microtime(true);
-
-        Model::unguarded(function () use ($seeder) {
-            $seeder->__invoke();
+        Model::unguarded(function () {
+            $this->getSeeder()->__invoke();
         });
-
-        if ($shouldReportProgress) {
-            $runTime = number_format((microtime(true) - $startTime) * 1000);
-
-            $this->components->twoColumnDetail(
-                get_class($seeder), "<fg=gray>$runTime ms</> <fg=green;options=bold>DONE</>"
-            );
-
-            $this->newLine();
-        }
 
         if ($previousConnection) {
             $this->resolver->setDefaultConnection($previousConnection);
         }
 
-        return self::SUCCESS;
+        return 0;
     }
 
     /**
@@ -138,5 +111,31 @@ class SeedCommand extends Command
         $database = $this->input->getOption('database');
 
         return $database ?: $this->laravel['config']['database.default'];
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [
+            ['class', InputArgument::OPTIONAL, 'The class name of the root seeder', null],
+        ];
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['class', null, InputOption::VALUE_OPTIONAL, 'The class name of the root seeder', 'Database\\Seeders\\DatabaseSeeder'],
+            ['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to seed'],
+            ['force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production'],
+        ];
     }
 }

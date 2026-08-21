@@ -5,6 +5,7 @@ namespace Illuminate\Foundation\Console;
 use Illuminate\Console\Concerns\CreatesMatchingTest;
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'make:job-middleware')]
 class JobMiddlewareMakeCommand extends GeneratorCommand
@@ -12,13 +13,11 @@ class JobMiddlewareMakeCommand extends GeneratorCommand
     use CreatesMatchingTest;
 
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:job-middleware
-                    {name : The name of the middleware}
-                    {--f|force : Create the class even if the job middleware already exists}';
+    protected $name = 'make:job-middleware';
 
     /**
      * The console command description.
@@ -66,5 +65,17 @@ class JobMiddlewareMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace.'\Jobs\Middleware';
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the job middleware already exists'],
+        ];
     }
 }

@@ -10,11 +10,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class EventClearCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'event:clear';
+    protected $name = 'event:clear';
 
     /**
      * The console command description.

@@ -8,6 +8,7 @@ use Illuminate\Console\Prohibitable;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Events\DatabaseRefreshed;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'migrate:refresh')]
 class RefreshCommand extends Command
@@ -15,18 +16,11 @@ class RefreshCommand extends Command
     use ConfirmableTrait, Prohibitable;
 
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'migrate:refresh
-                    {--database= : The database connection to use}
-                    {--force : Force the operation to run when in production}
-                    {--path=* : The path(s) to the migrations files to be executed}
-                    {--realpath : Indicate any provided migration file paths are pre-resolved absolute paths}
-                    {--seed : Indicates if the seed task should be re-run}
-                    {--seeder= : The class name of the root seeder}
-                    {--step= : The number of migrations to be reverted & re-run}';
+    protected $name = 'migrate:refresh';
 
     /**
      * The console command description.
@@ -42,8 +36,9 @@ class RefreshCommand extends Command
      */
     public function handle()
     {
-        if ($this->isProhibited() || ! $this->confirmToProceed()) {
-            return self::FAILURE;
+        if ($this->isProhibited() ||
+            ! $this->confirmToProceed()) {
+            return Command::FAILURE;
         }
 
         // Next we'll gather some of the options so that we can have the right options
@@ -84,7 +79,7 @@ class RefreshCommand extends Command
             $this->runSeeder($database);
         }
 
-        return self::SUCCESS;
+        return 0;
     }
 
     /**
@@ -146,5 +141,23 @@ class RefreshCommand extends Command
             '--class' => $this->option('seeder') ?: 'Database\\Seeders\\DatabaseSeeder',
             '--force' => true,
         ]));
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use'],
+            ['force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production'],
+            ['path', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'The path(s) to the migrations files to be executed'],
+            ['realpath', null, InputOption::VALUE_NONE, 'Indicate any provided migration file paths are pre-resolved absolute paths'],
+            ['seed', null, InputOption::VALUE_NONE, 'Indicates if the seed task should be re-run'],
+            ['seeder', null, InputOption::VALUE_OPTIONAL, 'The class name of the root seeder'],
+            ['step', null, InputOption::VALUE_OPTIONAL, 'The number of migrations to be reverted & re-run'],
+        ];
     }
 }

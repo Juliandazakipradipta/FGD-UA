@@ -5,6 +5,7 @@ namespace Illuminate\Foundation\Console;
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use function Laravel\Prompts\select;
@@ -13,15 +14,11 @@ use function Laravel\Prompts\select;
 class EnumMakeCommand extends GeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:enum
-                    {name : The name of the enum}
-                    {--s|string : Generate a string backed enum.}
-                    {--i|int : Generate an integer backed enum.}
-                    {--f|force : Create the enum even if the enum already exists}';
+    protected $name = 'make:enum';
 
     /**
      * The console command description.
@@ -122,5 +119,19 @@ class EnumMakeCommand extends GeneratorCommand
         if ($type !== 'pure') {
             $input->setOption($type, true);
         }
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['string', 's', InputOption::VALUE_NONE, 'Generate a string backed enum.'],
+            ['int', 'i', InputOption::VALUE_NONE, 'Generate an integer backed enum.'],
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the enum even if the enum already exists'],
+        ];
     }
 }

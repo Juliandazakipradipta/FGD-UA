@@ -6,6 +6,8 @@ use Illuminate\Console\Concerns\CreatesMatchingTest;
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Stringable;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'make:command')]
 class ConsoleMakeCommand extends GeneratorCommand
@@ -13,14 +15,11 @@ class ConsoleMakeCommand extends GeneratorCommand
     use CreatesMatchingTest;
 
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:command
-                    {name : The name of the command}
-                    {--f|force : Create the class even if the console command already exists}
-                    {--command= : The terminal command that will be used to invoke the class}';
+    protected $name = 'make:command';
 
     /**
      * The console command description.
@@ -75,5 +74,30 @@ class ConsoleMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace.'\Console\Commands';
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [
+            ['name', InputArgument::REQUIRED, 'The name of the command'],
+        ];
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the console command already exists'],
+            ['command', null, InputOption::VALUE_OPTIONAL, 'The terminal command that will be used to invoke the class'],
+        ];
     }
 }

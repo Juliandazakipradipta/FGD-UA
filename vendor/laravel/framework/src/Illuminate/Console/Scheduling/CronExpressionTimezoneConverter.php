@@ -4,7 +4,6 @@ namespace Illuminate\Console\Scheduling;
 
 use DateTimeZone;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Throwable;
 
 class CronExpressionTimezoneConverter
@@ -248,7 +247,7 @@ class CronExpressionTimezoneConverter
             $groups[implode(',', $days)][] = $month;
         }
 
-        return (new Collection($groups))->map(function ($months, $days) {
+        return collect($groups)->map(function ($months, $days) {
             sort($months);
 
             return [
@@ -428,7 +427,7 @@ class CronExpressionTimezoneConverter
             return (string) $values[0];
         }
 
-        $steps = (new Collection($values))
+        $steps = collect($values)
             ->sliding(2)
             ->map(fn ($pair) => $pair->last() - $pair->first())
             ->unique();
@@ -456,7 +455,7 @@ class CronExpressionTimezoneConverter
      */
     protected static function collapseRuns(array $values)
     {
-        return (new Collection($values))
+        return collect($values)
             ->chunkWhile(fn ($value, $key, $chunk) => $value === $chunk->last() + 1)
             ->map(fn ($run) => $run->count() >= 3 ? $run->first().'-'.$run->last() : $run->implode(','))
             ->implode(',');

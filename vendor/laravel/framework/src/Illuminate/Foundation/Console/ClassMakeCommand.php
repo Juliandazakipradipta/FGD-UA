@@ -4,19 +4,17 @@ namespace Illuminate\Foundation\Console;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'make:class')]
 class ClassMakeCommand extends GeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:class
-                    {name : The name of the class}
-                    {--i|invokable : Generate a single method, invokable class}
-                    {--f|force : Create the class even if the class already exists}';
+    protected $name = 'make:class';
 
     /**
      * The console command description.
@@ -55,5 +53,18 @@ class ClassMakeCommand extends GeneratorCommand
         return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
             ? $customPath
             : __DIR__.$stub;
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['invokable', 'i', InputOption::VALUE_NONE, 'Generate a single method, invokable class'],
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the class already exists'],
+        ];
     }
 }

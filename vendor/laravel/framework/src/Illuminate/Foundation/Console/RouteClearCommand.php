@@ -10,11 +10,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class RouteClearCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'route:clear';
+    protected $name = 'route:clear';
 
     /**
      * The console command description.

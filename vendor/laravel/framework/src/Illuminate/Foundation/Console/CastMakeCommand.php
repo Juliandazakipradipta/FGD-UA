@@ -4,19 +4,17 @@ namespace Illuminate\Foundation\Console;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'make:cast')]
 class CastMakeCommand extends GeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:cast
-                    {name : The name of the cast}
-                    {--f|force : Create the class even if the cast already exists}
-                    {--inbound : Generate an inbound cast class}';
+    protected $name = 'make:cast';
 
     /**
      * The console command description.
@@ -66,5 +64,18 @@ class CastMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace.'\Casts';
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the cast already exists'],
+            ['inbound', null, InputOption::VALUE_NONE, 'Generate an inbound cast class'],
+        ];
     }
 }

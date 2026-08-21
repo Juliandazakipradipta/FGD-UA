@@ -142,7 +142,7 @@ class EventFake implements Dispatcher, Fake
         }
 
         PHPUnit::assertTrue(
-            $this->dispatched($event, $callback)->isNotEmpty(),
+            $this->dispatched($event, $callback)->count() > 0,
             "The expected [{$event}] event was not dispatched."
         );
     }
@@ -347,11 +347,12 @@ class EventFake implements Dispatcher, Fake
         }
 
         return (new Collection($this->eventsToFake))
-            ->contains(function ($event) use ($eventName, $payload) {
+            ->filter(function ($event) use ($eventName, $payload) {
                 return $event instanceof Closure
                     ? $event($eventName, $payload)
                     : $event === $eventName;
-            });
+            })
+            ->isNotEmpty();
     }
 
     /**
@@ -386,11 +387,12 @@ class EventFake implements Dispatcher, Fake
         }
 
         return (new Collection($this->eventsToDispatch))
-            ->contains(function ($event) use ($eventName, $payload) {
+            ->filter(function ($event) use ($eventName, $payload) {
                 return $event instanceof Closure
                     ? $event($eventName, $payload)
                     : $event === $eventName;
-            });
+            })
+            ->isNotEmpty();
     }
 
     /**

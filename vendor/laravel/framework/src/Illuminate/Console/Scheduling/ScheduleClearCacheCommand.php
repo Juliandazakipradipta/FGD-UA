@@ -9,11 +9,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class ScheduleClearCacheCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'schedule:clear-cache';
+    protected $name = 'schedule:clear-cache';
 
     /**
      * The console command description.
@@ -32,7 +32,7 @@ class ScheduleClearCacheCommand extends Command
     {
         $mutexCleared = false;
 
-        foreach ($schedule->events() as $event) {
+        foreach ($schedule->events($this->laravel) as $event) {
             if ($event->mutex->exists($event)) {
                 $this->components->info(sprintf('Deleting mutex for [%s]', $event->command));
 

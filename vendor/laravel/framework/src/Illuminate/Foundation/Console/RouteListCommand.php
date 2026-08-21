@@ -15,29 +15,18 @@ use Illuminate\Support\Stringable;
 use ReflectionClass;
 use ReflectionFunction;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Terminal;
 
 #[AsCommand(name: 'route:list')]
 class RouteListCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'route:list
-                    {--json : Output the route list as JSON}
-                    {--method= : Filter the routes by method}
-                    {--action= : Filter the routes by action}
-                    {--name= : Filter the routes by name}
-                    {--domain= : Filter the routes by domain}
-                    {--middleware= : Filter the routes by middleware}
-                    {--path= : Only show routes matching the given path pattern}
-                    {--except-path= : Do not display the routes matching the given path pattern}
-                    {--r|reverse : Reverse the ordering of the routes}
-                    {--sort=uri : The column (domain, method, uri, name, action, middleware, definition) to sort by}
-                    {--except-vendor : Do not display routes defined by vendor packages}
-                    {--only-vendor : Only display routes defined by vendor packages}';
+    protected $name = 'route:list';
 
     /**
      * The console command description.
@@ -153,7 +142,7 @@ class RouteListCommand extends Command
         return $this->filterRoute([
             'domain' => $route->domain(),
             'method' => implode('|', $route->methods()),
-            'uri' => $this->resolveUri($route),
+            'uri' => $route->uri(),
             'name' => $route->getName(),
             'action' => ltrim($route->getActionName(), '\\'),
             'middleware' => $this->getMiddleware($route),
@@ -213,23 +202,6 @@ class RouteListCommand extends Command
     }
 
     /**
-     * Get the URI for the given route, including any binding fields.
-     *
-     * @param  \Illuminate\Routing\Route  $route
-     * @return string
-     */
-    protected function resolveUri(Route $route)
-    {
-        $uri = $route->uri();
-
-        foreach ($route->bindingFields() as $parameter => $field) {
-            $uri = str_replace("{{$parameter}}", "{{$parameter}:{$field}}", $uri);
-        }
-
-        return $uri;
-    }
-
-    /**
      * Get the middleware for the route.
      *
      * @param  \Illuminate\Routing\Route  $route
@@ -247,8 +219,6 @@ class RouteListCommand extends Command
      *
      * @param  \Illuminate\Routing\Route  $route
      * @return string|null
-     *
-     * @throws \ReflectionException
      */
     protected function getClosurePath(Route $route)
     {
@@ -405,14 +375,14 @@ class RouteListCommand extends Command
         $routes = $routes->map(
             fn ($route) => array_merge($route, [
                 'action' => $this->formatActionForCli($route),
-                'method' => $route['method'] === 'GET|HEAD|POST|PUT|PATCH|DELETE|OPTIONS' ? 'ANY' : $route['method'],
+                'method' => $route['method'] == 'GET|HEAD|POST|PUT|PATCH|DELETE|OPTIONS' ? 'ANY' : $route['method'],
                 'uri' => $route['domain'] ? ($route['domain'].'/'.ltrim($route['uri'], '/')) : $route['uri'],
             ]),
         );
 
         $maxMethod = mb_strlen($routes->max('method'));
 
-        $terminalWidth = self::getTerminalWidth();
+        $terminalWidth = $this->getTerminalWidth();
 
         $routeCount = $this->determineRouteCountOutput($routes, $terminalWidth);
 
@@ -495,7 +465,7 @@ class RouteListCommand extends Command
         $actionClass = explode('@', $action)[0];
 
         if (class_exists($actionClass) && str_starts_with((new ReflectionClass($actionClass))->getFilename(), base_path('vendor'))) {
-            $actionCollection = (new Stringable($action))->explode('\\');
+            $actionCollection = new Collection(explode('\\', $action));
 
             return $name.$actionCollection->take(2)->implode('\\').'   '.$actionCollection->last();
         }
@@ -542,5 +512,28 @@ class RouteListCommand extends Command
     public static function resolveTerminalWidthUsing($resolver)
     {
         static::$terminalWidthResolver = $resolver;
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['json', null, InputOption::VALUE_NONE, 'Output the route list as JSON'],
+            ['method', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by method'],
+            ['action', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by action'],
+            ['name', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by name'],
+            ['domain', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by domain'],
+            ['middleware', null, InputOption::VALUE_OPTIONAL, 'Filter the routes by middleware'],
+            ['path', null, InputOption::VALUE_OPTIONAL, 'Only show routes matching the given path pattern'],
+            ['except-path', null, InputOption::VALUE_OPTIONAL, 'Do not display the routes matching the given path pattern'],
+            ['reverse', 'r', InputOption::VALUE_NONE, 'Reverse the ordering of the routes'],
+            ['sort', null, InputOption::VALUE_OPTIONAL, 'The column (domain, method, uri, name, action, middleware, definition) to sort by', 'uri'],
+            ['except-vendor', null, InputOption::VALUE_NONE, 'Do not display routes defined by vendor packages'],
+            ['only-vendor', null, InputOption::VALUE_NONE, 'Only display routes defined by vendor packages'],
+        ];
     }
 }

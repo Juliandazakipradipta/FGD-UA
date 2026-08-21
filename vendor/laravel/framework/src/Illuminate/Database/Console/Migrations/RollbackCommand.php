@@ -54,8 +54,9 @@ class RollbackCommand extends BaseCommand
      */
     public function handle()
     {
-        if ($this->isProhibited() || ! $this->confirmToProceed()) {
-            return self::FAILURE;
+        if ($this->isProhibited() ||
+            ! $this->confirmToProceed()) {
+            return Command::FAILURE;
         }
 
         $this->migrator->usingConnection($this->option('database'), function () {
@@ -68,7 +69,7 @@ class RollbackCommand extends BaseCommand
             );
         });
 
-        return self::SUCCESS;
+        return 0;
     }
 
     /**

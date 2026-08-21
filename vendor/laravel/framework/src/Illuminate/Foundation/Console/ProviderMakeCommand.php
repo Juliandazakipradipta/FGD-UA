@@ -5,18 +5,17 @@ namespace Illuminate\Foundation\Console;
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\ServiceProvider;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'make:provider')]
 class ProviderMakeCommand extends GeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:provider
-                    {name : The name of the provider}
-                    {--f|force : Create the class even if the provider already exists}';
+    protected $name = 'make:provider';
 
     /**
      * The console command description.
@@ -87,5 +86,17 @@ class ProviderMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace.'\Providers';
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the provider already exists'],
+        ];
     }
 }

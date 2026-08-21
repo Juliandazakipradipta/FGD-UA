@@ -13,11 +13,11 @@ use Symfony\Component\Console\Terminal;
 class ChannelListCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'channel:list';
+    protected $name = 'channel:list';
 
     /**
      * The console command description.
@@ -48,11 +48,11 @@ class ChannelListCommand extends Command
             $this->components->warn('The [App\Providers\BroadcastServiceProvider] has not been loaded. Your private channels may not be loaded.');
         }
 
-        if ($channels->isEmpty()) {
-            $this->components->error("Your application doesn't have any private broadcasting channels.");
-        } else {
-            $this->displayChannels($channels);
+        if (! $channels->count()) {
+            return $this->components->error("Your application doesn't have any private broadcasting channels.");
         }
+
+        $this->displayChannels($channels);
     }
 
     /**
@@ -78,7 +78,7 @@ class ChannelListCommand extends Command
             return mb_strlen($channelName);
         });
 
-        $terminalWidth = self::getTerminalWidth();
+        $terminalWidth = $this->getTerminalWidth();
 
         $channelCount = $this->determineChannelCountOutput($channels, $terminalWidth);
 

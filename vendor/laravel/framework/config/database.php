@@ -99,14 +99,6 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
-            'pooled' => env('DB_POOLED', false),
-            'direct' => array_filter([
-                'host' => env('DB_DIRECT_HOST'),
-                'port' => env('DB_DIRECT_PORT'),
-                'username' => env('DB_DIRECT_USERNAME'),
-                'password' => env('DB_DIRECT_PASSWORD'),
-                'sslmode' => env('DB_DIRECT_SSLMODE'),
-            ]),
         ],
 
         'sqlsrv' => [
@@ -159,7 +151,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel'), '_').'_database_'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
@@ -174,7 +166,6 @@ return [
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
-            'command_retries' => env('REDIS_COMMAND_RETRIES', 0),
         ],
 
         'cache' => [
@@ -188,7 +179,6 @@ return [
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
-            'command_retries' => env('REDIS_COMMAND_RETRIES', 0),
         ],
 
     ],

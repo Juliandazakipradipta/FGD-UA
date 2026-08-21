@@ -20,14 +20,11 @@ class RedisTagSet extends TagSet
     {
         $ttl = is_null($ttl) ? -1 : Carbon::now()->addSeconds($ttl)->getTimestamp();
 
-        $connection = $this->store->connection();
-        $prefix = $this->store->getPrefix();
-
         foreach ($this->tagIds() as $tagKey) {
             if ($updateWhen) {
-                $connection->zadd($prefix.$tagKey, $updateWhen, $ttl, $key);
+                $this->store->connection()->zadd($this->store->getPrefix().$tagKey, $updateWhen, $ttl, $key);
             } else {
-                $connection->zadd($prefix.$tagKey, $ttl, $key);
+                $this->store->connection()->zadd($this->store->getPrefix().$tagKey, $ttl, $key);
             }
         }
     }
@@ -47,14 +44,12 @@ class RedisTagSet extends TagSet
         };
 
         return new LazyCollection(function () use ($connection, $defaultCursorValue) {
-            $prefix = $this->store->getPrefix();
-
             foreach ($this->tagIds() as $tagKey) {
                 $cursor = $defaultCursorValue;
 
                 do {
                     $results = $connection->zscan(
-                        $prefix.$tagKey,
+                        $this->store->getPrefix().$tagKey,
                         $cursor,
                         ['match' => '*', 'count' => 1000]
                     );
@@ -71,14 +66,14 @@ class RedisTagSet extends TagSet
 
                     $entries = array_unique(array_keys($entries));
 
-                    if ($entries === []) {
+                    if (count($entries) === 0) {
                         continue;
                     }
 
                     foreach ($entries as $entry) {
                         yield $entry;
                     }
-                } while (((string) $cursor) !== ((string) $defaultCursorValue));
+                } while (((string) $cursor) !== $defaultCursorValue);
             }
         });
     }
@@ -90,12 +85,9 @@ class RedisTagSet extends TagSet
      */
     public function flushStaleEntries()
     {
-        $prefix = $this->store->getPrefix();
-        $now = Carbon::now()->getTimestamp();
-
-        $flushStaleEntries = function ($pipe) use ($prefix, $now) {
+        $flushStaleEntries = function ($pipe) {
             foreach ($this->tagIds() as $tagKey) {
-                $pipe->zremrangebyscore($prefix.$tagKey, 0, $now);
+                $pipe->zremrangebyscore($this->store->getPrefix().$tagKey, 0, Carbon::now()->getTimestamp());
             }
         };
 

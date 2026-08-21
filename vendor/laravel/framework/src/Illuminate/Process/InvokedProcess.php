@@ -4,14 +4,11 @@ namespace Illuminate\Process;
 
 use Illuminate\Contracts\Process\InvokedProcess as InvokedProcessContract;
 use Illuminate\Process\Exceptions\ProcessTimedOutException;
-use Illuminate\Support\Traits\Macroable;
 use Symfony\Component\Process\Exception\ProcessTimedOutException as SymfonyTimeoutException;
 use Symfony\Component\Process\Process;
 
 class InvokedProcess implements InvokedProcessContract
 {
-    use Macroable;
-
     /**
      * The underlying process instance.
      *
@@ -136,7 +133,7 @@ class InvokedProcess implements InvokedProcessContract
         try {
             $this->process->checkTimeout();
         } catch (SymfonyTimeoutException $e) {
-            throw ProcessTimedOutException::make($e, new ProcessResult($this->process));
+            throw new ProcessTimedOutException($e, new ProcessResult($this->process));
         }
     }
 
@@ -155,7 +152,7 @@ class InvokedProcess implements InvokedProcessContract
 
             return new ProcessResult($this->process);
         } catch (SymfonyTimeoutException $e) {
-            throw ProcessTimedOutException::make($e, new ProcessResult($this->process));
+            throw new ProcessTimedOutException($e, new ProcessResult($this->process));
         }
     }
 
@@ -174,7 +171,7 @@ class InvokedProcess implements InvokedProcessContract
 
             return new ProcessResult($this->process);
         } catch (SymfonyTimeoutException $e) {
-            throw ProcessTimedOutException::make($e, new ProcessResult($this->process));
+            throw new ProcessTimedOutException($e, new ProcessResult($this->process));
         }
     }
 }

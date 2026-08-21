@@ -11,16 +11,16 @@ use function Illuminate\Filesystem\join_paths;
 class TableCommand extends MigrationGeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:queue-table';
+    protected $name = 'make:queue-table';
 
     /**
      * The console command name aliases.
      *
-     * @var string[]
+     * @var array
      */
     protected $aliases = ['queue:table'];
 
@@ -63,9 +63,15 @@ class TableCommand extends MigrationGeneratorCommand
             return parent::migrationExists($table);
         }
 
-        return array_any([
+        foreach ([
             join_paths($this->laravel->databasePath('migrations'), '*_*_*_*_create_'.$table.'_table.php'),
             join_paths($this->laravel->databasePath('migrations'), '0001_01_01_000002_create_jobs_table.php'),
-        ], fn ($path) => count($this->files->glob($path)) !== 0);
+        ] as $path) {
+            if (count($this->files->glob($path)) !== 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

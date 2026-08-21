@@ -5,6 +5,7 @@ namespace Illuminate\Foundation\Console;
 use Illuminate\Console\Concerns\CreatesMatchingTest;
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'make:job')]
 class JobMakeCommand extends GeneratorCommand
@@ -12,15 +13,11 @@ class JobMakeCommand extends GeneratorCommand
     use CreatesMatchingTest;
 
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:job
-                    {name : The name of the job}
-                    {--f|force : Create the class even if the job already exists}
-                    {--sync : Indicates that the job should be synchronous}
-                    {--batched : Indicates that the job should be batchable}';
+    protected $name = 'make:job';
 
     /**
      * The console command description.
@@ -74,5 +71,19 @@ class JobMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace.'\Jobs';
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the job already exists'],
+            ['sync', null, InputOption::VALUE_NONE, 'Indicates that the job should be synchronous'],
+            ['batched', null, InputOption::VALUE_NONE, 'Indicates that the job should be batchable'],
+        ];
     }
 }

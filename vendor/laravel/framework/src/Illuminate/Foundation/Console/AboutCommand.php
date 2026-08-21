@@ -99,7 +99,7 @@ class AboutCommand extends Command
 
         $this->newLine();
 
-        return self::SUCCESS;
+        return 0;
     }
 
     /**
@@ -173,7 +173,7 @@ class AboutCommand extends Command
             'Composer Version' => $this->composer->getVersion() ?? '<fg=yellow;options=bold>-</>',
             'Environment' => $this->laravel->environment(),
             'Debug Mode' => static::format(config('app.debug'), console: $formatEnabledStatus),
-            'URL' => (new Stringable(config('app.url')))->replace(['http://', 'https://'], ''),
+            'URL' => Str::of(config('app.url'))->replace(['http://', 'https://'], ''),
             'Maintenance Mode' => static::format($this->laravel->isDownForMaintenance(), console: $formatEnabledStatus),
             'Timezone' => config('app.timezone'),
             'Locale' => config('app.locale'),
@@ -332,7 +332,7 @@ class AboutCommand extends Command
      */
     protected function sections()
     {
-        return (new Stringable($this->option('only') ?? ''))->explode(',')
+        return (new Collection(explode(',', $this->option('only') ?? '')))
             ->filter()
             ->map(fn ($only) => $this->toSearchKeyword($only))
             ->all();

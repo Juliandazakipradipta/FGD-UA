@@ -315,13 +315,6 @@ class Validator implements ValidatorContract
     protected static $placeholderHash;
 
     /**
-     * Indicates if DNS lookups performed by validation rules should be faked to always succeed.
-     *
-     * @var bool
-     */
-    protected static $fakeDnsLookups = false;
-
-    /**
      * The exception to throw upon failure.
      *
      * @var class-string<\Illuminate\Validation\ValidationException>
@@ -571,8 +564,14 @@ class Validator implements ValidatorContract
      */
     protected function shouldBeExcluded($attribute)
     {
-        return array_any($this->excludeAttributes, fn ($excludeAttribute) => $attribute === $excludeAttribute ||
-            Str::startsWith($attribute, $excludeAttribute.'.'));
+        foreach ($this->excludeAttributes as $excludeAttribute) {
+            if ($attribute === $excludeAttribute ||
+                Str::startsWith($attribute, $excludeAttribute.'.')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -596,9 +595,7 @@ class Validator implements ValidatorContract
      */
     public function validate()
     {
-        if ($this->fails()) {
-            throw is_string($this->exception) ? new $this->exception($this) : $this->exception;
-        }
+        throw_if($this->fails(), $this->exception, $this);
 
         return $this->validated();
     }
@@ -625,10 +622,8 @@ class Validator implements ValidatorContract
     /**
      * Get a validated input container for the validated input.
      *
-     * @param  array<int, string>|null  $keys
-     * @return ($keys is array ? array<string, mixed> : \Illuminate\Support\ValidatedInput)
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * @param  array|null  $keys
+     * @return \Illuminate\Support\ValidatedInput|array
      */
     public function safe(?array $keys = null)
     {
@@ -650,9 +645,7 @@ class Validator implements ValidatorContract
             $this->passes();
         }
 
-        if ($this->messages->isNotEmpty()) {
-            throw is_string($this->exception) ? new $this->exception($this) : $this->exception;
-        }
+        throw_if($this->messages->isNotEmpty(), $this->exception, $this);
 
         $results = [];
 
@@ -1654,7 +1647,7 @@ class Validator implements ValidatorContract
     /**
      * Ensure exponents are within range using the given callback.
      *
-     * @param  callable(int, string, mixed): mixed  $callback
+     * @param  callable(int $scale, string $attribute, mixed $value)  $callback
      * @return $this
      */
     public function ensureExponentWithinAllowedRangeUsing($callback)
@@ -1751,17 +1744,6 @@ class Validator implements ValidatorContract
     }
 
     /**
-     * Fake the DNS lookups performed by validation rules so they always succeed.
-     *
-     * @param  bool  $value
-     * @return void
-     */
-    public static function fakeDnsLookups($value = true)
-    {
-        static::$fakeDnsLookups = $value;
-    }
-
-    /**
      * Flush the validator's global state.
      *
      * @return void
@@ -1769,7 +1751,6 @@ class Validator implements ValidatorContract
     public static function flushState()
     {
         static::$placeholderHash = null;
-        static::$fakeDnsLookups = false;
     }
 
     /**

@@ -14,11 +14,11 @@ use Throwable;
 class ConfigCacheCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'config:cache';
+    protected $name = 'config:cache';
 
     /**
      * The console command description.

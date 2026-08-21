@@ -4,18 +4,17 @@ namespace Illuminate\Foundation\Console;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'make:interface')]
 class InterfaceMakeCommand extends GeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:interface
-                    {name : The name of the interface}
-                    {--f|force : Create the interface even if the interface already exists}';
+    protected $name = 'make:interface';
 
     /**
      * The console command description.
@@ -54,5 +53,17 @@ class InterfaceMakeCommand extends GeneratorCommand
             is_dir(app_path('Interfaces')) => $rootNamespace.'\\Interfaces',
             default => $rootNamespace,
         };
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the interface even if the interface already exists'],
+        ];
     }
 }

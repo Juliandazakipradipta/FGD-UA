@@ -2,7 +2,6 @@
 
 namespace Illuminate\Mail;
 
-use BackedEnum;
 use Closure;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Mail\Mailable as MailableContract;
@@ -114,7 +113,7 @@ class Mailer implements MailerContract, MailQueueContract
      */
     public function alwaysFrom($address, $name = null)
     {
-        $this->from = ['address' => $address, 'name' => $name];
+        $this->from = compact('address', 'name');
     }
 
     /**
@@ -126,7 +125,7 @@ class Mailer implements MailerContract, MailQueueContract
      */
     public function alwaysReplyTo($address, $name = null)
     {
-        $this->replyTo = ['address' => $address, 'name' => $name];
+        $this->replyTo = compact('address', 'name');
     }
 
     /**
@@ -137,7 +136,7 @@ class Mailer implements MailerContract, MailQueueContract
      */
     public function alwaysReturnPath($address)
     {
-        $this->returnPath = ['address' => $address];
+        $this->returnPath = compact('address');
     }
 
     /**
@@ -149,7 +148,7 @@ class Mailer implements MailerContract, MailQueueContract
      */
     public function alwaysTo($address, $name = null)
     {
-        $this->to = ['address' => $address, 'name' => $name];
+        $this->to = compact('address', 'name');
     }
 
     /**
@@ -476,7 +475,7 @@ class Mailer implements MailerContract, MailQueueContract
             throw new InvalidArgumentException('Only mailables may be queued.');
         }
 
-        if (is_string($queue) || $queue instanceof BackedEnum) {
+        if (is_string($queue)) {
             $view->onQueue($queue);
         }
 
@@ -525,12 +524,8 @@ class Mailer implements MailerContract, MailQueueContract
             throw new InvalidArgumentException('Only mailables may be queued.');
         }
 
-        if (! is_null($queue)) {
-            $view->onQueue($queue);
-        }
-
         return $view->mailer($this->name)->later(
-            $delay, $this->queue
+            $delay, is_null($queue) ? $this->queue : $queue
         );
     }
 

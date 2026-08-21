@@ -2,7 +2,6 @@
 
 namespace Illuminate\Support\Testing\Fakes;
 
-use BackedEnum;
 use Closure;
 use Illuminate\Contracts\Mail\Factory;
 use Illuminate\Contracts\Mail\Mailable;
@@ -82,7 +81,7 @@ class MailFake implements Factory, Fake, Mailer, MailQueue
                 $callback = fn ($mail) => $mail->hasTo($address);
 
                 PHPUnit::assertTrue(
-                    $this->sent($mailable, $callback)->isNotEmpty(),
+                    $this->sent($mailable, $callback)->count() > 0,
                     "The expected [{$mailable}] mailable was not sent to address [{$address}].".$suggestion
                 );
             }
@@ -91,7 +90,7 @@ class MailFake implements Factory, Fake, Mailer, MailQueue
         }
 
         PHPUnit::assertTrue(
-            $this->sent($mailable, $callback)->isNotEmpty(),
+            $this->sent($mailable, $callback)->count() > 0,
             "The expected [{$mailable}] mailable was not sent.".$suggestion
         );
     }
@@ -205,7 +204,7 @@ class MailFake implements Factory, Fake, Mailer, MailQueue
                 $callback = fn ($mail) => $mail->hasTo($address);
 
                 PHPUnit::assertTrue(
-                    $this->queued($mailable, $callback)->isNotEmpty(),
+                    $this->queued($mailable, $callback)->count() > 0,
                     "The expected [{$mailable}] mailable was not queued to address [{$address}]."
                 );
             }
@@ -214,7 +213,7 @@ class MailFake implements Factory, Fake, Mailer, MailQueue
         }
 
         PHPUnit::assertTrue(
-            $this->queued($mailable, $callback)->isNotEmpty(),
+            $this->queued($mailable, $callback)->count() > 0,
             "The expected [{$mailable}] mailable was not queued."
         );
     }
@@ -226,7 +225,7 @@ class MailFake implements Factory, Fake, Mailer, MailQueue
      * @param  int  $times
      * @return void
      */
-    public function assertQueuedTimes($mailable, $times = 1)
+    protected function assertQueuedTimes($mailable, $times = 1)
     {
         $count = $this->queued($mailable)->count();
 
@@ -362,7 +361,7 @@ class MailFake implements Factory, Fake, Mailer, MailQueue
      */
     public function hasSent($mailable)
     {
-        return $this->mailablesOf($mailable)->isNotEmpty();
+        return $this->mailablesOf($mailable)->count() > 0;
     }
 
     /**
@@ -393,7 +392,7 @@ class MailFake implements Factory, Fake, Mailer, MailQueue
      */
     public function hasQueued($mailable)
     {
-        return $this->queuedMailablesOf($mailable)->isNotEmpty();
+        return $this->queuedMailablesOf($mailable)->count() > 0;
     }
 
     /**
@@ -429,17 +428,6 @@ class MailFake implements Factory, Fake, Mailer, MailQueue
         $this->currentMailer = $name;
 
         return $this;
-    }
-
-    /**
-     * Get a mailer driver instance.
-     *
-     * @param  string|null  $driver
-     * @return \Illuminate\Contracts\Mail\Mailer
-     */
-    public function driver($driver = null)
-    {
-        return $this->mailer($driver);
     }
 
     /**
@@ -541,7 +529,7 @@ class MailFake implements Factory, Fake, Mailer, MailQueue
      * Queue a new message for sending.
      *
      * @param  \Illuminate\Contracts\Mail\Mailable|string|array  $view
-     * @param  \BackedEnum|string|null  $queue
+     * @param  string|null  $queue
      * @return mixed
      */
     public function queue($view, $queue = null)
@@ -550,39 +538,11 @@ class MailFake implements Factory, Fake, Mailer, MailQueue
             return;
         }
 
-        if (is_string($queue) || $queue instanceof BackedEnum) {
-            $view->onQueue($queue);
-        }
-
         $view->mailer($this->currentMailer);
 
         $this->currentMailer = null;
 
         $this->queuedMailables[] = $view;
-    }
-
-    /**
-     * Queue a new mail message for sending on the given queue.
-     *
-     * @param  \BackedEnum|string|null  $queue
-     * @param  \Illuminate\Contracts\Mail\Mailable  $view
-     * @return mixed
-     */
-    public function onQueue($queue, $view)
-    {
-        return $this->queue($view, $queue);
-    }
-
-    /**
-     * Queue a new mail message for sending on the given queue.
-     *
-     * @param  \BackedEnum|string|null  $queue
-     * @param  \Illuminate\Contracts\Mail\Mailable  $view
-     * @return mixed
-     */
-    public function queueOn($queue, $view)
-    {
-        return $this->onQueue($queue, $view);
     }
 
     /**
@@ -595,24 +555,7 @@ class MailFake implements Factory, Fake, Mailer, MailQueue
      */
     public function later($delay, $view, $queue = null)
     {
-        if ($view instanceof Mailable && ! is_null($queue)) {
-            $view->onQueue($queue);
-        }
-
-        $this->queue($view);
-    }
-
-    /**
-     * Queue a new e-mail message for sending after (n) seconds on the given queue.
-     *
-     * @param  string|null  $queue
-     * @param  \DateTimeInterface|\DateInterval|int  $delay
-     * @param  \Illuminate\Contracts\Mail\Mailable  $view
-     * @return mixed
-     */
-    public function laterOn($queue, $delay, $view)
-    {
-        return $this->later($delay, $view, $queue);
+        $this->queue($view, $queue);
     }
 
     /**

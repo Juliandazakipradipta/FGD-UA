@@ -11,11 +11,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class ViewClearCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'view:clear';
+    protected $name = 'view:clear';
 
     /**
      * The console command description.

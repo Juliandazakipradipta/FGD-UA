@@ -4,9 +4,7 @@ namespace Illuminate\Queue;
 
 use Illuminate\Contracts\Events\Dispatcher as EventDispatcher;
 use Illuminate\Contracts\Queue\Queue as QueueContract;
-use Illuminate\Queue\Attributes\Delay;
 use Illuminate\Queue\Events\QueueFailedOver;
-use Illuminate\Support\Collection;
 use RuntimeException;
 use Throwable;
 
@@ -32,7 +30,7 @@ class FailoverQueue extends Queue implements QueueContract
     /**
      * Get the size of the queue.
      *
-     * @param  \UnitEnum|string|null  $queue
+     * @param  string|null  $queue
      * @return int
      */
     public function size($queue = null)
@@ -43,7 +41,7 @@ class FailoverQueue extends Queue implements QueueContract
     /**
      * Get the number of pending jobs.
      *
-     * @param  \UnitEnum|string|null  $queue
+     * @param  string|null  $queue
      * @return int
      */
     public function pendingSize($queue = null)
@@ -54,7 +52,7 @@ class FailoverQueue extends Queue implements QueueContract
     /**
      * Get the number of delayed jobs.
      *
-     * @param  \UnitEnum|string|null  $queue
+     * @param  string|null  $queue
      * @return int
      */
     public function delayedSize($queue = null)
@@ -65,7 +63,7 @@ class FailoverQueue extends Queue implements QueueContract
     /**
      * Get the number of reserved jobs.
      *
-     * @param  \UnitEnum|string|null  $queue
+     * @param  string|null  $queue
      * @return int
      */
     public function reservedSize($queue = null)
@@ -74,72 +72,9 @@ class FailoverQueue extends Queue implements QueueContract
     }
 
     /**
-     * Get the pending jobs for the given queue.
-     *
-     * @param  \UnitEnum|string|null  $queue
-     * @return \Illuminate\Support\Collection
-     */
-    public function pendingJobs($queue = null): Collection
-    {
-        return $this->manager->connection($this->connections[0])->pendingJobs($queue);
-    }
-
-    /**
-     * Get the delayed jobs for the given queue.
-     *
-     * @param  \UnitEnum|string|null  $queue
-     * @return \Illuminate\Support\Collection
-     */
-    public function delayedJobs($queue = null): Collection
-    {
-        return $this->manager->connection($this->connections[0])->delayedJobs($queue);
-    }
-
-    /**
-     * Get the reserved jobs for the given queue.
-     *
-     * @param  \UnitEnum|string|null  $queue
-     * @return \Illuminate\Support\Collection
-     */
-    public function reservedJobs($queue = null): Collection
-    {
-        return $this->manager->connection($this->connections[0])->reservedJobs($queue);
-    }
-
-    /**
-     * Get all pending jobs across every queue.
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function allPendingJobs(): Collection
-    {
-        return $this->manager->connection($this->connections[0])->allPendingJobs();
-    }
-
-    /**
-     * Get all delayed jobs across every queue.
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function allDelayedJobs(): Collection
-    {
-        return $this->manager->connection($this->connections[0])->allDelayedJobs();
-    }
-
-    /**
-     * Get all reserved jobs across every queue.
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function allReservedJobs(): Collection
-    {
-        return $this->manager->connection($this->connections[0])->allReservedJobs();
-    }
-
-    /**
      * Get the creation timestamp of the oldest pending job, excluding delayed jobs.
      *
-     * @param  \UnitEnum|string|null  $queue
+     * @param  string|null  $queue
      * @return int|null
      */
     public function creationTimeOfOldestPendingJob($queue = null)
@@ -154,7 +89,7 @@ class FailoverQueue extends Queue implements QueueContract
      *
      * @param  object|string  $job
      * @param  mixed  $data
-     * @param  \UnitEnum|string|null  $queue
+     * @param  string|null  $queue
      * @return mixed
      */
     public function push($job, $data = '', $queue = null)
@@ -166,7 +101,7 @@ class FailoverQueue extends Queue implements QueueContract
      * Push a raw payload onto the queue.
      *
      * @param  string  $payload
-     * @param  \UnitEnum|string|null  $queue
+     * @param  string|null  $queue
      * @return mixed
      */
     public function pushRaw($payload, $queue = null, array $options = [])
@@ -180,7 +115,7 @@ class FailoverQueue extends Queue implements QueueContract
      * @param  \DateTimeInterface|\DateInterval|int  $delay
      * @param  string  $job
      * @param  mixed  $data
-     * @param  \UnitEnum|string|null  $queue
+     * @param  string|null  $queue
      * @return mixed
      */
     public function later($delay, $job, $data = '', $queue = null)
@@ -189,30 +124,9 @@ class FailoverQueue extends Queue implements QueueContract
     }
 
     /**
-     * Push an array of jobs onto the queue.
-     *
-     * @param  array  $jobs
-     * @param  mixed  $data
-     * @param  \UnitEnum|string|null  $queue
-     * @return void
-     */
-    public function bulk($jobs, $data = '', $queue = null)
-    {
-        foreach ((array) $jobs as $job) {
-            $delay = is_object($job) ? $this->getAttributeValue($job, Delay::class, 'delay') : null;
-
-            if (isset($delay)) {
-                $this->later($delay, $job, $data, $queue);
-            } else {
-                $this->push($job, $data, $queue);
-            }
-        }
-    }
-
-    /**
      * Pop the next job off of the queue.
      *
-     * @param  \UnitEnum|string|null  $queue
+     * @param  string|null  $queue
      * @return \Illuminate\Contracts\Queue\Job|null
      */
     public function pop($queue = null)

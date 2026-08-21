@@ -9,16 +9,16 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class NotificationTableCommand extends MigrationGeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:notifications-table';
+    protected $name = 'make:notifications-table';
 
     /**
      * The console command name aliases.
      *
-     * @var string[]
+     * @var array
      */
     protected $aliases = ['notifications:table'];
 

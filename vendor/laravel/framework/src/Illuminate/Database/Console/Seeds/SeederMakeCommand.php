@@ -10,11 +10,11 @@ use Symfony\Component\Console\Attribute\AsCommand;
 class SeederMakeCommand extends GeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:seeder {name : The name of the seeder}';
+    protected $name = 'make:seeder';
 
     /**
      * The console command description.

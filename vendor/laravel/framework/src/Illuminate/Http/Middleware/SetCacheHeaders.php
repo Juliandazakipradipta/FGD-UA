@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use Illuminate\Support\Stringable;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -51,7 +50,7 @@ class SetCacheHeaders
     {
         $response = $next($request);
 
-        if (! $request->isMethodCacheable() || (! $response->getContent() && ! $request->isMethod('HEAD') && ! $response instanceof BinaryFileResponse && ! $response instanceof StreamedResponse)) {
+        if (! $request->isMethodCacheable() || (! $response->getContent() && ! $response instanceof BinaryFileResponse && ! $response instanceof StreamedResponse)) {
             return $response;
         }
 
@@ -89,7 +88,7 @@ class SetCacheHeaders
      */
     protected function parseOptions($options)
     {
-        return (new Stringable(rtrim($options, ';')))->explode(';')->mapWithKeys(function ($option) {
+        return (new Collection(explode(';', rtrim($options, ';'))))->mapWithKeys(function ($option) {
             $data = explode('=', $option, 2);
 
             return [$data[0] => $data[1] ?? true];

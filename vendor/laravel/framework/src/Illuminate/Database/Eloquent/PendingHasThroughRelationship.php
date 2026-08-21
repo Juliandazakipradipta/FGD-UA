@@ -72,8 +72,8 @@ class PendingHasThroughRelationship
 
         if ($distantRelation instanceof HasMany || $this->localRelationship instanceof HasMany) {
             $returnedRelation = $this->rootModel->hasManyThrough(
-                $distantRelation->getRelatedClass(),
-                $this->localRelationship->getRelatedClass(),
+                $distantRelation->getRelated()::class,
+                $this->localRelationship->getRelated()::class,
                 $this->localRelationship->getForeignKeyName(),
                 $distantRelation->getForeignKeyName(),
                 $this->localRelationship->getLocalKeyName(),
@@ -81,8 +81,8 @@ class PendingHasThroughRelationship
             );
         } else {
             $returnedRelation = $this->rootModel->hasOneThrough(
-                $distantRelation->getRelatedClass(),
-                $this->localRelationship->getRelatedClass(),
+                $distantRelation->getRelated()::class,
+                $this->localRelationship->getRelated()::class,
                 $this->localRelationship->getForeignKeyName(),
                 $distantRelation->getForeignKeyName(),
                 $this->localRelationship->getLocalKeyName(),
@@ -103,8 +103,6 @@ class PendingHasThroughRelationship
      * @param  string  $method
      * @param  array  $parameters
      * @return mixed
-     *
-     * @throws \BadMethodCallException
      */
     public function __call($method, $parameters)
     {

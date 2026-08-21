@@ -6,7 +6,6 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Traits\Macroable;
 use Illuminate\Validation\Rules\AnyOf;
-use Illuminate\Validation\Rules\ArrayKeys;
 use Illuminate\Validation\Rules\ArrayRule;
 use Illuminate\Validation\Rules\Can;
 use Illuminate\Validation\Rules\Date;
@@ -79,17 +78,6 @@ class Rule
     public static function array($keys = null)
     {
         return new ArrayRule(...func_get_args());
-    }
-
-    /**
-     * Get an array keys rule builder instance.
-     *
-     * @param  \Illuminate\Contracts\Support\Arrayable|array|string  $keys
-     * @return \Illuminate\Validation\Rules\ArrayKeys
-     */
-    public static function arrayKeys($keys)
-    {
-        return new ArrayKeys(...func_get_args());
     }
 
     /**
@@ -171,7 +159,7 @@ class Rule
     /**
      * Get a required_unless rule builder instance.
      *
-     * @param  (\Closure(): bool)|bool|null  $callback
+     * @param  (\Closure(): bool)|bool  $callback
      * @return \Illuminate\Validation\Rules\RequiredUnless
      */
     public static function requiredUnless($callback)
@@ -180,7 +168,7 @@ class Rule
     }
 
     /**
-     * Get an exclude_if rule builder instance.
+     * Get a exclude_if rule builder instance.
      *
      * @param  (\Closure(): bool)|bool  $callback
      * @return \Illuminate\Validation\Rules\ExcludeIf
@@ -191,7 +179,7 @@ class Rule
     }
 
     /**
-     * Get an exclude_unless rule builder instance.
+     * Get a exclude_unless rule builder instance.
      *
      * @param  (\Closure(): bool)|bool  $callback
      * @return \Illuminate\Validation\Rules\ExcludeUnless

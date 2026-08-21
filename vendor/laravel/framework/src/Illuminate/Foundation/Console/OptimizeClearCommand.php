@@ -5,18 +5,18 @@ namespace Illuminate\Foundation\Console;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Stringable;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'optimize:clear')]
 class OptimizeClearCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'optimize:clear {--e|except= : The commands to skip}';
+    protected $name = 'optimize:clear';
 
     /**
      * The console command description.
@@ -34,7 +34,7 @@ class OptimizeClearCommand extends Command
     {
         $this->components->info('Clearing cached bootstrap files.');
 
-        $exceptions = (new Stringable($this->option('except') ?? ''))->explode(',')
+        $exceptions = Collection::wrap(explode(',', $this->option('except') ?? ''))
             ->map(fn ($except) => trim($except))
             ->filter()
             ->unique()
@@ -45,7 +45,7 @@ class OptimizeClearCommand extends Command
             ->toArray();
 
         foreach ($tasks as $description => $command) {
-            $this->components->task($description, fn () => $this->callSilently($command) === 0);
+            $this->components->task($description, fn () => $this->callSilently($command) == 0);
         }
 
         $this->newLine();
@@ -66,6 +66,18 @@ class OptimizeClearCommand extends Command
             'routes' => 'route:clear',
             'views' => 'view:clear',
             ...ServiceProvider::$optimizeClearCommands,
+        ];
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['except', 'e', InputOption::VALUE_OPTIONAL, 'The commands to skip'],
         ];
     }
 }

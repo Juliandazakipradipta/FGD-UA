@@ -4,18 +4,17 @@ namespace Illuminate\Foundation\Console;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'make:trait')]
 class TraitMakeCommand extends GeneratorCommand
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:trait
-                    {name : The name of the trait}
-                    {--f|force : Create the trait even if the trait already exists}';
+    protected $name = 'make:trait';
 
     /**
      * The console command description.
@@ -67,5 +66,17 @@ class TraitMakeCommand extends GeneratorCommand
             is_dir(app_path('Traits')) => $rootNamespace.'\\Traits',
             default => $rootNamespace,
         };
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the trait even if the trait already exists'],
+        ];
     }
 }

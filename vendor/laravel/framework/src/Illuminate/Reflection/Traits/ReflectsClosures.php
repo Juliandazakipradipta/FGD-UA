@@ -57,19 +57,19 @@ trait ReflectsClosures
 
                 return [$parameter->getName() => Reflector::getParameterClassNames($parameter)];
             })
+            ->filter()
+            ->values()
             ->all();
 
         if (empty($types)) {
             throw new RuntimeException('The given Closure has no parameters.');
         }
 
-        $first = array_values($types)[0];
-
-        if (empty($first)) {
+        if (isset($types[0]) && empty($types[0])) {
             throw new RuntimeException('The first parameter of the given Closure is missing a type hint.');
         }
 
-        return $first;
+        return $types[0];
     }
 
     /**
@@ -117,7 +117,8 @@ trait ReflectsClosures
             : [$reflection->getReturnType()];
 
         return (new Collection($types))
-            ->reject(fn ($type) => $type->isBuiltin() || in_array($type->getName(), ['static', 'self']))
+            ->reject(fn ($type) => $type->isBuiltin())
+            ->reject(fn ($type) => in_array($type->getName(), ['static', 'self']))
             ->map(fn ($type) => $type->getName())
             ->values()
             ->all();

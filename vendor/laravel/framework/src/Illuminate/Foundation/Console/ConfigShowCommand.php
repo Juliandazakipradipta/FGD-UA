@@ -40,7 +40,7 @@ class ConfigShowCommand extends Command
         $this->render($config);
         $this->newLine();
 
-        return self::SUCCESS;
+        return Command::SUCCESS;
     }
 
     /**

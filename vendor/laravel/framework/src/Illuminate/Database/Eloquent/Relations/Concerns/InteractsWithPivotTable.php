@@ -2,12 +2,11 @@
 
 namespace Illuminate\Database\Eloquent\Relations\Concerns;
 
+use BackedEnum;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Collection as BaseCollection;
-
-use function Illuminate\Support\enum_value;
 
 trait InteractsWithPivotTable
 {
@@ -36,7 +35,7 @@ trait InteractsWithPivotTable
             array_keys($records)
         ));
 
-        if ($detach !== []) {
+        if (count($detach) > 0) {
             $this->detach($detach, false);
 
             $changes['detached'] = $this->castKeys($detach);
@@ -47,7 +46,7 @@ trait InteractsWithPivotTable
         // this change list and get ready to return these results to the callers.
         $attach = array_diff_key($records, array_flip($detach));
 
-        if ($attach !== []) {
+        if (count($attach) > 0) {
             $this->attach($attach, [], false);
 
             $changes['attached'] = array_keys($attach);
@@ -120,7 +119,7 @@ trait InteractsWithPivotTable
         if ($detaching) {
             $detach = array_diff($current, array_keys($records));
 
-            if ($detach !== []) {
+            if (count($detach) > 0) {
                 $this->detach($detach, false);
 
                 $changes['detached'] = $this->castKeys($detach);
@@ -216,7 +215,9 @@ trait InteractsWithPivotTable
                 [$id, $attributes] = [$attributes, []];
             }
 
-            $id = enum_value($id);
+            if ($id instanceof BackedEnum) {
+                $id = $id->value;
+            }
 
             return [$id => $attributes];
         })->all();
@@ -571,8 +572,15 @@ trait InteractsWithPivotTable
      */
     protected function detachUsingCustomClass($ids)
     {
-        return $this->getCurrentlyAttachedPivotsForIds($ids)
-            ->reduce(fn ($carry, $record) => $carry + $record->delete(), 0);
+        $results = 0;
+
+        $records = $this->getCurrentlyAttachedPivotsForIds($ids);
+
+        foreach ($records as $record) {
+            $results += $record->delete();
+        }
+
+        return $results;
     }
 
     /**

@@ -124,7 +124,13 @@ class Gate implements GateContract
     {
         $abilities = is_array($ability) ? $ability : func_get_args();
 
-        return array_all($abilities, fn ($ability) => isset($this->abilities[enum_value($ability)]));
+        foreach ($abilities as $ability) {
+            if (! isset($this->abilities[enum_value($ability)])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -858,7 +864,7 @@ class Gate implements GateContract
      */
     public function forUser($user)
     {
-        $gate = new static(
+        return new static(
             $this->container,
             fn () => $user,
             $this->abilities,
@@ -867,10 +873,6 @@ class Gate implements GateContract
             $this->afterCallbacks,
             $this->guessPolicyNamesUsingCallback,
         );
-
-        $gate->defaultDenialResponse = $this->defaultDenialResponse;
-
-        return $gate;
     }
 
     /**

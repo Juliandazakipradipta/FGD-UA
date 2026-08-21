@@ -5,18 +5,18 @@ namespace Illuminate\Foundation\Console;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Stringable;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputOption;
 
 #[AsCommand(name: 'optimize')]
 class OptimizeCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * The console command name.
      *
      * @var string
      */
-    protected $signature = 'optimize {--e|except= : Do not run the commands matching the key or name}';
+    protected $name = 'optimize';
 
     /**
      * The console command description.
@@ -34,7 +34,7 @@ class OptimizeCommand extends Command
     {
         $this->components->info('Caching framework bootstrap, configuration, and metadata.');
 
-        $exceptions = (new Stringable($this->option('except') ?? ''))->explode(',')
+        $exceptions = Collection::wrap(explode(',', $this->option('except') ?? ''))
             ->map(fn ($except) => trim($except))
             ->filter()
             ->unique()
@@ -45,7 +45,7 @@ class OptimizeCommand extends Command
             ->toArray();
 
         foreach ($tasks as $description => $command) {
-            $this->components->task($description, fn () => $this->callSilently($command) === 0);
+            $this->components->task($description, fn () => $this->callSilently($command) == 0);
         }
 
         $this->newLine();
@@ -64,6 +64,18 @@ class OptimizeCommand extends Command
             'routes' => 'route:cache',
             'views' => 'view:cache',
             ...ServiceProvider::$optimizeCommands,
+        ];
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [
+            ['except', 'e', InputOption::VALUE_OPTIONAL, 'Do not run the commands matching the key or name'],
         ];
     }
 }
