@@ -38,10 +38,11 @@ putenv("SESSION_DRIVER=cookie");
 putenv("APP_MAINTENANCE_DRIVER=cache");
 putenv("APP_MAINTENANCE_STORE=array");
 
-// Force relative asset URL so CSS/JS load cleanly on all devices
-putenv("ASSET_URL=/");
-$_ENV['ASSET_URL'] = '/';
-$_SERVER['ASSET_URL'] = '/';
+// On Vercel, static files are served from project root, so public/ dir maps to /public/
+// This means asset('build/x.css') must become /public/build/x.css
+putenv("ASSET_URL=/public");
+$_ENV['ASSET_URL'] = '/public';
+$_SERVER['ASSET_URL'] = '/public';
 
 if (isset($_SERVER['HTTP_HOST'])) {
     $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? 'https' : 'https';
