@@ -30,6 +30,7 @@ if (file_exists(__DIR__ . '/../public/hot')) {
 // 2. Set environment variables
 putenv("VERCEL=1");
 putenv("APP_ENV=production");
+putenv("APP_DEBUG=true"); // Temporarily enable to diagnose 500 error
 putenv("APP_STORAGE_PATH={$tmpStorage}");
 putenv("VIEW_COMPILED_PATH=/tmp/views");
 putenv("LOG_CHANNEL=stderr");
