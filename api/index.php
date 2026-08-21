@@ -28,10 +28,10 @@ if (file_exists(__DIR__ . '/../public/hot')) {
     @unlink(__DIR__ . '/../public/hot');
 }
 
-// 2. Set environment variables
+// 2. Set environment variables for Vercel Serverless
 putenv("VERCEL=1");
 putenv("APP_ENV=production");
-putenv("APP_DEBUG=false");
+putenv("APP_DEBUG=true");
 putenv("APP_STORAGE_PATH={$tmpStorage}");
 putenv("VIEW_COMPILED_PATH=/tmp/views");
 putenv("LOG_CHANNEL=stderr");
@@ -39,51 +39,27 @@ putenv("CACHE_STORE=array");
 putenv("SESSION_DRIVER=cookie");
 putenv("APP_MAINTENANCE_DRIVER=cache");
 putenv("APP_MAINTENANCE_STORE=array");
-
-// On Vercel, static files are served from project root, so public/ dir maps to /public/
-// This means asset('build/x.css') must become /public/build/x.css
 putenv("ASSET_URL=/public");
-$_ENV['ASSET_URL'] = '/public';
-$_SERVER['ASSET_URL'] = '/public';
-
-// Cookie session settings for Vercel serverless
-putenv("SESSION_SECURE_COOKIE=false");
-putenv("SESSION_SAME_SITE=lax");
-putenv("SESSION_HTTP_ONLY=true");
-putenv("SESSION_LIFETIME=120");
-$_ENV['SESSION_SECURE_COOKIE'] = false;
-$_ENV['SESSION_SAME_SITE'] = 'lax';
-$_ENV['SESSION_HTTP_ONLY'] = true;
-$_ENV['SESSION_LIFETIME'] = 120;
-
-if (isset($_SERVER['HTTP_HOST'])) {
-    $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ? 'https' : 'https';
-    $appUrl = "{$scheme}://{$_SERVER['HTTP_HOST']}";
-    putenv("APP_URL={$appUrl}");
-    $_ENV['APP_URL'] = $appUrl;
-    $_SERVER['APP_URL'] = $appUrl;
-}
 
 $_ENV['VERCEL']                 = '1';
 $_ENV['APP_ENV']                = 'production';
+$_ENV['APP_DEBUG']              = 'true';
 $_ENV['APP_STORAGE_PATH']       = $tmpStorage;
 $_ENV['VIEW_COMPILED_PATH']     = '/tmp/views';
 $_ENV['LOG_CHANNEL']            = 'stderr';
 $_ENV['CACHE_STORE']            = 'array';
 $_ENV['SESSION_DRIVER']         = 'cookie';
-$_ENV['APP_MAINTENANCE_DRIVER'] = 'cache';
-$_ENV['APP_MAINTENANCE_STORE']  = 'array';
+$_ENV['ASSET_URL']              = '/public';
 
 $_SERVER['VERCEL']                 = '1';
 $_SERVER['APP_ENV']                = 'production';
+$_SERVER['APP_DEBUG']              = 'true';
 $_SERVER['APP_STORAGE_PATH']       = $tmpStorage;
 $_SERVER['VIEW_COMPILED_PATH']     = '/tmp/views';
 $_SERVER['LOG_CHANNEL']            = 'stderr';
 $_SERVER['CACHE_STORE']            = 'array';
 $_SERVER['SESSION_DRIVER']         = 'cookie';
-$_SERVER['APP_MAINTENANCE_DRIVER'] = 'cache';
-$_SERVER['APP_MAINTENANCE_STORE']  = 'array';
-$_SERVER['APP_DEBUG']              = 'false';
+$_SERVER['ASSET_URL']              = '/public';
 
 // 3. Fallback APP_KEY if needed
 if (!getenv('APP_KEY')) {
