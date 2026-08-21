@@ -13,17 +13,6 @@ class AppServiceProvider extends ServiceProvider
         if (getenv('VERCEL') || isset($_ENV['VERCEL'])) {
             $this->app->useStoragePath('/tmp/storage');
             $this->app->useBootstrapPath('/tmp/bootstrap');
-            
-            // Set hashing driver config to sha256
-            config(['hashing.driver' => 'sha256']);
-            
-            // Safely extend the resolved hash manager instance with our custom driver
-            $this->app->extend('hash', function ($hash, $app) {
-                $hash->extend('sha256', function () {
-                    return new \App\Hashing\Sha256Hasher();
-                });
-                return $hash;
-            });
         }
     }
 
@@ -35,6 +24,16 @@ class AppServiceProvider extends ServiceProvider
         // Force HTTPS on Vercel so form actions and redirects always use https://
         if (getenv('VERCEL') || isset($_ENV['VERCEL'])) {
             URL::forceScheme('https');
+
+            // Auto-migrate and seed if tables do not exist yet in database
+            try {
+                if (!\Illuminate\Support\Facades\Schema::hasTable('groups')) {
+                    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+                    \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+                }
+            } catch (\Throwable $e) {
+                // Silently ignore if DB initializing
+            }
         }
 
         // High-concurrency optimization for SQLite (WAL Mode & Busy Timeout)

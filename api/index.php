@@ -153,22 +153,6 @@ $app->useStoragePath($tmpStorage);
 $app->useBootstrapPath($tmpBootstrap);
 
 $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
-
-// Boot app & auto-migrate database if using Supabase/External DB
-if (!empty($externalConn) && $externalConn !== 'sqlite') {
-    try {
-        $app->boot();
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        try {
-            if (\Illuminate\Support\Facades\DB::table('admins')->count() === 0) {
-                \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-            }
-        } catch (\Throwable $e) {}
-    } catch (\Throwable $e) {
-        // Silently handle DB init
-    }
-}
-
 $request = \Illuminate\Http\Request::capture();
 $response = $kernel->handle($request);
 $response->send();
