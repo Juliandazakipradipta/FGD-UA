@@ -12,7 +12,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if (getenv('VERCEL') || isset($_ENV['VERCEL'])) {
+            $this->app->useStoragePath('/tmp/storage');
+        }
     }
 
     /**
@@ -21,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // High-concurrency optimization for SQLite (WAL Mode & Busy Timeout)
-        if (config('database.default') === 'sqlite') {
+        if (config('database.default') === 'sqlite' && !getenv('VERCEL') && !isset($_ENV['VERCEL'])) {
             try {
                 DB::statement('PRAGMA journal_mode=WAL;');
                 DB::statement('PRAGMA busy_timeout=5000;');
