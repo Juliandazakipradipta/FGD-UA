@@ -14,6 +14,7 @@ class AppServiceProvider extends ServiceProvider
     {
         if (getenv('VERCEL') || isset($_ENV['VERCEL'])) {
             $this->app->useStoragePath('/tmp/storage');
+            $this->app->useBootstrapPath('/tmp/bootstrap');
         }
     }
 

@@ -2,7 +2,7 @@
 
 // 1. Prepare writable /tmp directories
 $tmpStorage   = '/tmp/storage';
-$tmpBootstrap = '/tmp/bootstrap/cache';
+$tmpBootstrap = '/tmp/bootstrap';
 
 $dirs = [
     $tmpStorage . '/app/public',
@@ -11,7 +11,7 @@ $dirs = [
     $tmpStorage . '/framework/testing',
     $tmpStorage . '/framework/views',
     $tmpStorage . '/logs',
-    $tmpBootstrap,
+    $tmpBootstrap . '/cache',
     '/tmp/views',
     '/tmp/database',
 ];
@@ -22,7 +22,7 @@ foreach ($dirs as $dir) {
     }
 }
 
-// 2. Set environment variables for storage and bootstrap caching
+// 2. Set environment variables
 putenv("VERCEL=1");
 putenv("APP_ENV=production");
 putenv("APP_STORAGE_PATH={$tmpStorage}");
@@ -31,12 +31,6 @@ putenv("LOG_CHANNEL=stderr");
 putenv("CACHE_STORE=array");
 putenv("SESSION_DRIVER=cookie");
 
-putenv("APP_SERVICES_CACHE={$tmpBootstrap}/services.php");
-putenv("APP_PACKAGES_CACHE={$tmpBootstrap}/packages.php");
-putenv("APP_ROUTES_CACHE={$tmpBootstrap}/routes.php");
-putenv("APP_CONFIG_CACHE={$tmpBootstrap}/config.php");
-putenv("APP_EVENTS_CACHE={$tmpBootstrap}/events.php");
-
 $_ENV['VERCEL']             = '1';
 $_ENV['APP_ENV']            = 'production';
 $_ENV['APP_STORAGE_PATH']   = $tmpStorage;
@@ -44,12 +38,6 @@ $_ENV['VIEW_COMPILED_PATH'] = '/tmp/views';
 $_ENV['LOG_CHANNEL']        = 'stderr';
 $_ENV['CACHE_STORE']        = 'array';
 $_ENV['SESSION_DRIVER']     = 'cookie';
-
-$_ENV['APP_SERVICES_CACHE'] = "{$tmpBootstrap}/services.php";
-$_ENV['APP_PACKAGES_CACHE'] = "{$tmpBootstrap}/packages.php";
-$_ENV['APP_ROUTES_CACHE']   = "{$tmpBootstrap}/routes.php";
-$_ENV['APP_CONFIG_CACHE']   = "{$tmpBootstrap}/config.php";
-$_ENV['APP_EVENTS_CACHE']   = "{$tmpBootstrap}/events.php";
 
 // 3. Fallback APP_KEY if needed
 if (!getenv('APP_KEY')) {
@@ -83,7 +71,10 @@ require __DIR__ . '/../vendor/autoload.php';
 
 /** @var \Illuminate\Foundation\Application $app */
 $app = require_once __DIR__ . '/../bootstrap/app.php';
+
+// Force storage AND bootstrap paths to writable /tmp
 $app->useStoragePath($tmpStorage);
+$app->useBootstrapPath($tmpBootstrap);
 
 $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
 $request = \Illuminate\Http\Request::capture();
