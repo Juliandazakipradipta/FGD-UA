@@ -23,7 +23,6 @@
             <form method="POST" action="{{ route('admin.minutes.destroy', $minute) }}"
                   onsubmit="return confirm('Apakah Anda yakin ingin menghapus data notulensi ini?');">
                 @csrf
-                @method('DELETE')
                 <button class="text-xs font-bold text-red-600 hover:bg-red-50 border border-red-200 px-4 py-2 rounded-xl transition">
                     Hapus Notulensi
                 </button>

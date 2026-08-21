@@ -45,10 +45,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/notulensi', [MinuteController::class, 'index'])->name('minutes.index');
         Route::get('/notulensi/export', [MinuteController::class, 'export'])->name('minutes.export');
         Route::get('/notulensi/{minute}', [MinuteController::class, 'show'])->name('minutes.show');
-        Route::delete('/notulensi/{minute}', [MinuteController::class, 'destroy'])->name('minutes.destroy');
+        Route::post('/notulensi/{minute}/delete', [MinuteController::class, 'destroy'])->name('minutes.destroy');
 
         Route::get('/groups', [GroupController::class, 'index'])->name('groups.index');
         Route::post('/groups', [GroupController::class, 'store'])->name('groups.store');
-        Route::delete('/groups/{group}', [GroupController::class, 'destroy'])->name('groups.destroy');
+        Route::post('/groups/{group}/delete', [GroupController::class, 'destroy'])->name('groups.destroy');
     });
 });

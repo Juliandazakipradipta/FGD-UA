@@ -49,7 +49,6 @@
                                 <form method="POST" action="{{ route('admin.groups.destroy', $group) }}"
                                       onsubmit="return confirm('Hapus grup ini? Semua notulensi terkait juga akan terhapus.');">
                                     @csrf
-                                    @method('DELETE')
                                     <button class="text-xs font-semibold text-red-500 hover:underline">Hapus</button>
                                 </form>
                             </td>
