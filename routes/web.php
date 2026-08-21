@@ -36,8 +36,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('login.attempt');
     });
 
-    // Admin yang sudah login
-    Route::middleware('auth:admin')->group(function () {
+    // Admin yang sudah login (fail-safe authentication check)
+    Route::middleware(\App\Http\Middleware\EnsureAdminAuth::class)->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
