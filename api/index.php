@@ -72,26 +72,10 @@ try {
     $app = require_once __DIR__ . '/../bootstrap/app.php';
     $app->useStoragePath('/tmp/storage');
 
-    // Intercept exception handler to capture primary exception without relying on 'view'
-    $app->singleton(
-        \Illuminate\Contracts\Debug\ExceptionHandler::class,
-        class extends \Illuminate\Foundation\Exceptions\Handler {
-            public function __construct() {}
-            public function render($request, \Throwable $e) {
-                http_response_code(500);
-                echo "<h1>PRIMARY EXCEPTION CAPTURED</h1>";
-                echo "<h2>" . get_class($e) . ": " . htmlspecialchars($e->getMessage()) . "</h2>";
-                echo "<p>File: " . htmlspecialchars($e->getFile()) . ":" . $e->getLine() . "</p>";
-                if ($prev = $e->getPrevious()) {
-                    echo "<h3>Previous: " . get_class($prev) . ": " . htmlspecialchars($prev->getMessage()) . "</h3>";
-                    echo "<p>File: " . htmlspecialchars($prev->getFile()) . ":" . $prev->getLine() . "</p>";
-                }
-                echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
-                exit;
-            }
-            public function report(\Throwable $e) {}
-        }
-    );
+    // Register essential providers early so error handler can use them
+    $app->register(new \Illuminate\Filesystem\FilesystemServiceProvider($app));
+    $app->register(new \Illuminate\View\ViewServiceProvider($app));
+    $app->register(new \Illuminate\Database\DatabaseServiceProvider($app));
 
     $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
     $request = \Illuminate\Http\Request::capture();
@@ -100,7 +84,7 @@ try {
     $kernel->terminate($request, $response);
 } catch (\Throwable $e) {
     http_response_code(500);
-    echo "<h1>BOOTSTRAP EXCEPTION</h1>";
+    echo "<h1>BOOTSTRAP CRASH REVEALED</h1>";
     echo "<h2>" . get_class($e) . ": " . htmlspecialchars($e->getMessage()) . "</h2>";
     echo "<p>File: " . htmlspecialchars($e->getFile()) . ":" . $e->getLine() . "</p>";
     echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
