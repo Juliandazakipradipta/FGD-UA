@@ -72,12 +72,14 @@ try {
     $app = require_once __DIR__ . '/../bootstrap/app.php';
     $app->useStoragePath('/tmp/storage');
 
+    $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
     $request = \Illuminate\Http\Request::capture();
-    $response = $app->handleRequest($request);
+    $response = $kernel->handle($request);
     $response->send();
+    $kernel->terminate($request, $response);
 } catch (\Throwable $e) {
     http_response_code(500);
-    echo "ERROR: " . $e->getMessage() . "\n";
+    echo "ORIGINAL EXCEPTION: " . get_class($e) . ": " . $e->getMessage() . "\n";
     echo "FILE: " . $e->getFile() . ":" . $e->getLine() . "\n\n";
     echo $e->getTraceAsString();
 }
