@@ -74,6 +74,17 @@ $_ENV['SESSION_DRIVER']         = 'cookie';
 $_ENV['APP_MAINTENANCE_DRIVER'] = 'cache';
 $_ENV['APP_MAINTENANCE_STORE']  = 'array';
 
+$_SERVER['VERCEL']                 = '1';
+$_SERVER['APP_ENV']                = 'production';
+$_SERVER['APP_STORAGE_PATH']       = $tmpStorage;
+$_SERVER['VIEW_COMPILED_PATH']     = '/tmp/views';
+$_SERVER['LOG_CHANNEL']            = 'stderr';
+$_SERVER['CACHE_STORE']            = 'array';
+$_SERVER['SESSION_DRIVER']         = 'cookie';
+$_SERVER['APP_MAINTENANCE_DRIVER'] = 'cache';
+$_SERVER['APP_MAINTENANCE_STORE']  = 'array';
+$_SERVER['APP_DEBUG']              = 'true';
+
 // 3. Fallback APP_KEY if needed
 if (!getenv('APP_KEY')) {
     $key = 'base64:4Mo3JcKI/HpmRzc3dsVG8GsiLl+JRYtFz60B75D8tBc=';
