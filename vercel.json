@@ -1,7 +1,5 @@
 {
     "version": 2,
-    "framework": null,
-    "buildCommand": "echo 'Skipping npm build, using pre-compiled assets'",
     "functions": {
         "api/index.php": {
             "runtime": "vercel-php@0.7.2"
