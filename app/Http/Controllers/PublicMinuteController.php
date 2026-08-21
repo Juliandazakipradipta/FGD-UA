@@ -16,6 +16,12 @@ class PublicMinuteController extends Controller
     public function create(): View
     {
         $groups = Group::orderBy('id')->get();
+        if ($groups->isEmpty()) {
+            for ($i = 1; $i <= 15; $i++) {
+                Group::firstOrCreate(['name' => "Grup {$i}"]);
+            }
+            $groups = Group::orderBy('id')->get();
+        }
         
         $topics = [
             'Tema 1: Dampak perbuatan maksiat terhadap kelestarian Q H J',
@@ -38,6 +44,9 @@ class PublicMinuteController extends Controller
         if (empty($data['session_date'])) {
             $data['session_date'] = now()->toDateString();
         }
+        if (empty($data['scope'])) {
+            $data['scope'] = 'ulul_albab';
+        }
 
         $minute = Minute::create($data);
         $group = Group::find($data['group_id']);
@@ -45,7 +54,7 @@ class PublicMinuteController extends Controller
         return redirect()
             ->route('notulensi.success')
             ->with('notulis_name', $data['notulis_name'] ?? 'Notulis')
-            ->with('group_name', $group ? $group->name : '');
+            ->with('group_name', $group ? $group->name : 'Grup FGD');
     }
 
     /**

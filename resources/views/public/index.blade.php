@@ -76,6 +76,7 @@
           class="space-y-4 sm:space-y-6">
         @csrf
 
+        <input type="hidden" name="group_id" :value="selectedGroup">
         <input type="hidden" name="session_topic" :value="getFinalTopic()">
 
         {{-- Honeypot anti-spam --}}

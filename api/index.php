@@ -172,9 +172,9 @@ $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
 if (!empty($externalConn) && $externalConn !== 'sqlite') {
     try {
         $app->boot();
-        if (!\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('admins') || !\Illuminate\Support\Facades\Schema::hasTable('groups')) {
             \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-            \Illuminate\Support\Facades\Artisan::call('db:seed', ['--class' => 'AdminSeeder', '--force' => true]);
+            \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         }
     } catch (\Throwable $e) {
         // Silently swallow errors during background migration checks to prevent 500 Server Error
