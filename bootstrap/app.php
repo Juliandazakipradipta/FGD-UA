@@ -21,10 +21,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
         // Exclude admin & notulensi form routes from CSRF on Vercel
         // (serverless stateless environment causes session cookie mismatch)
         $middleware->validateCsrfTokens(except: [
-            'admin/*',
-            'notulensi',
-            'notulensi/*',
-            'form/*',
+            '*admin*',
+            '*notulensi*',
+            '*form*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
