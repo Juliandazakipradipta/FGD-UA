@@ -71,7 +71,16 @@ if (!getenv('APP_KEY')) {
 }
 
 // 4. Set Database connection (supports external Cloud DB if set in Vercel Env Vars, else defaults to SQLite)
-$externalConn = getenv('DB_CONNECTION');
+$externalConn = $_ENV['DB_CONNECTION'] ?? $_SERVER['DB_CONNECTION'] ?? getenv('DB_CONNECTION');
+$dbHost       = $_ENV['DB_HOST'] ?? $_SERVER['DB_HOST'] ?? getenv('DB_HOST');
+
+if (!empty($dbHost) && (empty($externalConn) || $externalConn === 'sqlite')) {
+    $externalConn = 'pgsql';
+    putenv("DB_CONNECTION=pgsql");
+    $_ENV['DB_CONNECTION'] = 'pgsql';
+    $_SERVER['DB_CONNECTION'] = 'pgsql';
+}
+
 if (!empty($externalConn) && $externalConn !== 'sqlite') {
     // Using external database configured via Vercel Environment Variables
 } else {
