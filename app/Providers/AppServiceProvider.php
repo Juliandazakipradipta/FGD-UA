@@ -17,13 +17,12 @@ class AppServiceProvider extends ServiceProvider
             // Set hashing driver config to sha256
             config(['hashing.driver' => 'sha256']);
             
-            // Bind the hash manager singleton to return the sha256 hasher as default
-            $this->app->singleton('hash', function ($app) {
-                $manager = new \Illuminate\Hashing\HashManager($app);
-                $manager->extend('sha256', function () {
+            // Safely extend the resolved hash manager instance with our custom driver
+            $this->app->extend('hash', function ($hash, $app) {
+                $hash->extend('sha256', function () {
                     return new \App\Hashing\Sha256Hasher();
                 });
-                return $manager;
+                return $hash;
             });
         }
     }
