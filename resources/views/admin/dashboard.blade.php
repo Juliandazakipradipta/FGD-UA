@@ -10,16 +10,7 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                 <span class="text-xs font-black uppercase tracking-wider text-emerald-700">Administrator Dashboard</span>
             </div>
-            <h1 class="font-heading text-xl md:text-2xl font-black text-slate-900">
-                Dashboard Notulensi 
-                @if(($activeScope ?? '') === 'ulul_albab')
-                    <span class="text-emerald-700 font-extrabold">(ULUL ALBAB)</span>
-                @elseif(($activeScope ?? '') === 'perumnas_2')
-                    <span class="text-blue-700 font-extrabold">(Perumnas 2)</span>
-                @else
-                    <span class="text-purple-700 font-extrabold">(Semua Lokasi)</span>
-                @endif
-            </h1>
+            <h1 class="font-heading text-xl md:text-2xl font-black text-slate-900">Dashboard ULUL ALBAB &bull; CAI 47</h1>
             <p class="text-xs text-slate-500 font-medium mt-1">Ringkasan aktivitas notulensi FGD Majlis Ta'lim Ulul Albab &amp; CAI 47</p>
         </div>
 

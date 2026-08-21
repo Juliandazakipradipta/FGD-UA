@@ -13,28 +13,16 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
-        $admin = Auth::guard('admin')->user();
-        $activeScope = $admin ? $admin->scope : 'all';
-
-        $baseQuery = Minute::query();
-        if ($activeScope !== 'all') {
-            $baseQuery->where('scope', $activeScope);
-        }
-
-        $totalMinutes = (clone $baseQuery)->count();
+        $totalMinutes = Minute::count();
         $totalGroups = Group::count();
-        $minutesThisWeek = (clone $baseQuery)->where('created_at', '>=', Carbon::now()->subDays(7))->count();
+        $minutesThisWeek = Minute::where('created_at', '>=', Carbon::now()->subDays(7))->count();
 
-        $latestMinutes = (clone $baseQuery)->with('group')
+        $latestMinutes = Minute::with('group')
             ->latest()
             ->take(5)
             ->get();
 
-        $minutesPerGroup = Group::withCount(['minutes' => function ($q) use ($activeScope) {
-            if ($activeScope !== 'all') {
-                $q->where('scope', $activeScope);
-            }
-        }])
+        $minutesPerGroup = Group::withCount('minutes')
             ->orderByDesc('minutes_count')
             ->take(6)
             ->get();
@@ -44,8 +32,7 @@ class DashboardController extends Controller
             'totalGroups',
             'minutesThisWeek',
             'latestMinutes',
-            'minutesPerGroup',
-            'activeScope'
+            'minutesPerGroup'
         ));
     }
 }

@@ -14,7 +14,6 @@ class StoreMinuteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'scope' => ['required', 'string', 'in:ulul_albab,perumnas_2'],
             'group_id' => ['required', 'exists:groups,id'],
             'session_topic' => ['required', 'string', 'max:255'],
             'notulis_name' => ['nullable', 'string', 'max:255'],

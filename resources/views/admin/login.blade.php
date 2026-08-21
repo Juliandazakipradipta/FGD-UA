@@ -77,18 +77,6 @@
             </button>
         </form>
 
-        <div class="mt-4 p-3 bg-white/80 rounded-2xl border border-emerald-100 text-[11px] text-slate-600 space-y-1 shadow-xs">
-            <div class="font-bold text-slate-800 text-xs mb-1">Pilihan Login Admin:</div>
-            <div class="flex justify-between items-center bg-emerald-50/60 p-1.5 px-2 rounded-xl">
-                <span>🏢 <strong>ULUL ALBAB</strong>:</span>
-                <span class="font-mono text-emerald-800 font-bold">ulul albab / UA123</span>
-            </div>
-            <div class="flex justify-between items-center bg-blue-50/60 p-1.5 px-2 rounded-xl">
-                <span>🕌 <strong>Perumnas 2</strong>:</span>
-                <span class="font-mono text-blue-800 font-bold">perumnas2 / perumnas123</span>
-            </div>
-        </div>
-
         <p class="text-center text-xs font-semibold text-slate-400 mt-6">
             <a href="{{ route('home') }}" class="hover:text-emerald-700 transition">&larr; Kembali ke Form Notulensi</a>
         </p>

@@ -23,25 +23,6 @@
 
             <!-- Group & Session Pill Selectors -->
             <div class="w-full md:w-auto grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
-                <!-- Select Scope/Location -->
-                <div class="sm:col-span-2">
-                    <label class="block text-[10px] sm:text-[11px] font-extrabold text-slate-700 uppercase tracking-wider mb-1">Kelompok Utama / Lokasi <span class="text-emerald-600">*</span></label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" @click="selectedScope = 'ulul_albab'"
-                                :class="selectedScope === 'ulul_albab' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md font-black' : 'bg-white text-slate-700 hover:bg-emerald-50 border border-slate-200 font-bold'"
-                                class="py-2 px-3 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer">
-                            <span>🏢</span>
-                            <span>ULUL ALBAB</span>
-                        </button>
-                        <button type="button" @click="selectedScope = 'perumnas_2'"
-                                :class="selectedScope === 'perumnas_2' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md font-black' : 'bg-white text-slate-700 hover:bg-emerald-50 border border-slate-200 font-bold'"
-                                class="py-2 px-3 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer">
-                            <span>🕌</span>
-                            <span>Perumnas 2</span>
-                        </button>
-                    </div>
-                    <input type="hidden" name="scope" :value="selectedScope" form="notulisForm">
-                </div>
 
                 <!-- Select Grup -->
                 <div>
@@ -397,7 +378,6 @@
 function fgdWorkspace() {
     return {
         activeTab: 1,
-        selectedScope: '{{ old("scope", "ulul_albab") }}',
         selectedGroup: '{{ old("group_id") }}',
         groupName: '',
         selectedTopic: '{{ old("session_topic") && in_array(old("session_topic"), $topics) ? old("session_topic") : (old("session_topic") ? "custom" : "") }}',

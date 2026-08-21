@@ -17,14 +17,7 @@ class MinuteController extends Controller
      */
     public function index(Request $request): View
     {
-        $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
         $query = Minute::with('group')->latest('id');
-
-        if ($admin && $admin->scope !== 'all') {
-            $query->where('scope', $admin->scope);
-        } elseif ($request->filled('scope')) {
-            $query->where('scope', $request->input('scope'));
-        }
 
         if ($request->filled('group_id')) {
             $query->where('group_id', $request->input('group_id'));
@@ -49,11 +42,6 @@ class MinuteController extends Controller
 
     public function show(Minute $minute): View
     {
-        $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
-        if ($admin && $admin->scope !== 'all' && $minute->scope !== $admin->scope) {
-            abort(403, 'Anda tidak memiliki akses ke notulensi majelis ini.');
-        }
-
         $minute->load('group');
 
         return view('admin.minutes.show', compact('minute'));
@@ -61,11 +49,6 @@ class MinuteController extends Controller
 
     public function destroy(Minute $minute): RedirectResponse
     {
-        $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
-        if ($admin && $admin->scope !== 'all' && $minute->scope !== $admin->scope) {
-            abort(403, 'Anda tidak memiliki akses untuk menghapus notulensi majelis ini.');
-        }
-
         $minute->delete();
 
         return back()->with('status', 'Notulensi berhasil dihapus.');
@@ -76,14 +59,7 @@ class MinuteController extends Controller
      */
     public function export(Request $request): Response
     {
-        $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
         $query = Minute::with('group')->latest('id');
-
-        if ($admin && $admin->scope !== 'all') {
-            $query->where('scope', $admin->scope);
-        } elseif ($request->filled('scope')) {
-            $query->where('scope', $request->input('scope'));
-        }
 
         if ($request->filled('group_id')) {
             $query->where('group_id', $request->input('group_id'));
@@ -101,7 +77,7 @@ class MinuteController extends Controller
         }
 
         $minutes = $query->get();
-        $filename = 'rekap-notulensi-cai-' . ($admin ? $admin->scope : 'all') . '-' . now()->format('Y-m-d') . '.csv';
+        $filename = 'rekap-notulensi-cai-' . now()->format('Y-m-d') . '.csv';
 
         $callback = function () use ($minutes) {
             $handle = fopen('php://output', 'w');
