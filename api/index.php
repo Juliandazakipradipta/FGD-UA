@@ -31,8 +31,8 @@ if (file_exists(__DIR__ . '/../public/hot')) {
 
 // 2. Set environment variables for Vercel Serverless
 putenv("VERCEL=1");
-putenv("APP_ENV=local");
-putenv("APP_DEBUG=true");
+putenv("APP_ENV=production");
+putenv("APP_DEBUG=false");
 putenv("APP_NAME=FGD");
 putenv("SESSION_COOKIE=fgd_session");
 putenv("SESSION_SECURE_COOKIE=true");
@@ -45,8 +45,8 @@ putenv("APP_MAINTENANCE_DRIVER=file");
 putenv("ASSET_URL=/public");
 
 $_ENV['VERCEL']                 = '1';
-$_ENV['APP_ENV']                = 'local';
-$_ENV['APP_DEBUG']              = 'true';
+$_ENV['APP_ENV']                = 'production';
+$_ENV['APP_DEBUG']              = 'false';
 $_ENV['APP_NAME']               = 'FGD';
 $_ENV['SESSION_COOKIE']         = 'fgd_session';
 $_ENV['SESSION_SECURE_COOKIE']  = 'true';
@@ -59,8 +59,8 @@ $_ENV['APP_MAINTENANCE_DRIVER'] = 'file';
 $_ENV['ASSET_URL']              = '/public';
 
 $_SERVER['VERCEL']                 = '1';
-$_SERVER['APP_ENV']                = 'local';
-$_SERVER['APP_DEBUG']              = 'true';
+$_SERVER['APP_ENV']                = 'production';
+$_SERVER['APP_DEBUG']              = 'false';
 $_SERVER['APP_NAME']               = 'FGD';
 $_SERVER['SESSION_COOKIE']         = 'fgd_session';
 $_SERVER['SESSION_SECURE_COOKIE']  = 'true';
