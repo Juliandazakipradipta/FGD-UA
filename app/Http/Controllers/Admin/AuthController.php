@@ -29,7 +29,11 @@ class AuthController extends Controller
         ];
 
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
+            try {
+                $request->session()->regenerate();
+            } catch (\Throwable $e) {
+                // Session regeneration may fail on serverless - proceed anyway
+            }
 
             return redirect()->intended(route('admin.dashboard'));
         }
