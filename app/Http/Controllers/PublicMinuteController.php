@@ -17,13 +17,13 @@ class PublicMinuteController extends Controller
     {
         $groups = Group::orderBy('id')->get();
         
-        // Sample predefined session topics
         $topics = [
-            'Contoh: Kecanduan main Game Online',
-            'Sesi 1: Karakter Luhur & Kemandirian Keturunan',
-            'Sesi 2: Peran Orang Tua & Pendidikan Keluarga',
-            'Sesi 3: Penguatan Peran 5 Unsur di Kelompok',
-            'Sesi 4: Pembinaan Generasi Muda di Era Digital',
+            'Tema 1: Dampak perbuatan maksiat terhadap kelestarian Q H J',
+            'Tema 2: Wajibnya menjaga generus dari kemaksiatan di akhir jaman',
+            'Tema 3: Wajibnya menerampilkan 29 karakter luhur jamaah sebagai bekal sukses generus',
+            'Tema 4: Mencetak generus yg sukses dunia dan akhirat',
+            'Tema 5: Menjemput pertolongan allah dengan menolong agama allah',
+            'Tema 6: Meningkatkan semangat jangan mubalegh-mubaleghot',
         ];
 
         return view('public.index', compact('groups', 'topics'));
