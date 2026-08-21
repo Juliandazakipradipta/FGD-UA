@@ -24,21 +24,4 @@ $app = Application::configure(basePath: dirname(__DIR__))
         );
     })->create();
 
-// On Vercel / Serverless environments, redirect storage to writable /tmp
-if (getenv('VERCEL') || isset($_ENV['VERCEL']) || isset($_SERVER['VERCEL']) || is_dir('/tmp')) {
-    $storagePath = '/tmp/storage';
-    $dirs = [
-        $storagePath . '/logs',
-        $storagePath . '/framework/views',
-        $storagePath . '/framework/cache',
-        $storagePath . '/framework/sessions',
-    ];
-    foreach ($dirs as $dir) {
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0755, true);
-        }
-    }
-    $app->useStoragePath($storagePath);
-}
-
 return $app;
