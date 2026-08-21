@@ -21,13 +21,13 @@ class AuthController extends Controller
         $password = (string)$request->input('password');
 
         $emailMap = [
-            'admin' => 'admin@notulensi.test',
-            'ululalbab' => 'ululalbab@notulensi.test',
-            'ulul_albab' => 'ululalbab@notulensi.test',
-            'ulul albab' => 'ululalbab@notulensi.test',
-            'perumnas2' => 'perumnas2@notulensi.test',
-            'perumnas_2' => 'perumnas2@notulensi.test',
-            'perumnas 2' => 'perumnas2@notulensi.test',
+            'admin'       => 'admin@notulensi.test',
+            'ululalbab'   => 'ululalbab@notulensi.test',
+            'ulul_albab'  => 'ululalbab@notulensi.test',
+            'ulul albab'  => 'ululalbab@notulensi.test',
+            'perumnas2'   => 'perumnas2@notulensi.test',
+            'perumnas_2'  => 'perumnas2@notulensi.test',
+            'perumnas 2'  => 'perumnas2@notulensi.test',
         ];
 
         if (isset($emailMap[$input])) {
@@ -42,18 +42,43 @@ class AuthController extends Controller
             $email = $found ? $found->email : 'admin@notulensi.test';
         }
 
-        $credentials = [
-            'email' => $email,
-            'password' => $password,
-        ];
+        // Find admin by email
+        $admin = \App\Models\Admin::where('email', $email)->first();
 
-        if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
+        if (!$admin) {
+            return back()
+                ->withErrors(['email' => 'Username atau password salah.'])
+                ->onlyInput('email');
+        }
+
+        $authenticated = false;
+
+        // Try SHA-256 verification first (Vercel-compatible, no bcrypt needed)
+        if (hash('sha256', $password) === $admin->password) {
+            $authenticated = true;
+        }
+
+        // Fallback: try bcrypt (for local dev or legacy passwords)
+        if (!$authenticated) {
+            try {
+                if (password_verify($password, $admin->password)) {
+                    $authenticated = true;
+                    // Migrate password to SHA-256 for next login
+                    $admin->password = hash('sha256', $password);
+                    $admin->save();
+                }
+            } catch (\Throwable $e) {
+                // bcrypt not available on this host
+            }
+        }
+
+        if ($authenticated) {
+            Auth::guard('admin')->login($admin, $request->boolean('remember'));
             try {
                 $request->session()->regenerate();
             } catch (\Throwable $e) {
                 // Session regeneration may fail on serverless - proceed anyway
             }
-
             return redirect()->intended(route('admin.dashboard'));
         }
 

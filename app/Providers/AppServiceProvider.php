@@ -91,16 +91,22 @@ class AppServiceProvider extends ServiceProvider
                     }
                 }
 
-                // Seed Admins if admins table is empty
-                $adminCount = (int)$pdo->query("SELECT COUNT(*) FROM admins")->fetchColumn();
-                if ($adminCount === 0) {
-                    $admins = [
-                        ['name' => 'Super Admin', 'email' => 'admin@notulensi.test', 'pass' => 'admin123', 'scope' => 'all'],
-                        ['name' => 'Admin ULUL ALBAB', 'email' => 'ululalbab@notulensi.test', 'pass' => 'UA123', 'scope' => 'ulul_albab'],
-                        ['name' => 'Admin Perumnas 2', 'email' => 'perumnas2@notulensi.test', 'pass' => 'perumnas123', 'scope' => 'perumnas_2'],
-                    ];
-                    foreach ($admins as $a) {
-                        $hashed = password_hash($a['pass'], PASSWORD_BCRYPT);
+                // Seed Admins if admins table is empty, or fix password hashing
+                $admins = [
+                    ['name' => 'Super Admin', 'email' => 'admin@notulensi.test', 'pass' => 'admin123', 'scope' => 'all'],
+                    ['name' => 'Admin ULUL ALBAB', 'email' => 'ululalbab@notulensi.test', 'pass' => 'UA123', 'scope' => 'ulul_albab'],
+                    ['name' => 'Admin Perumnas 2', 'email' => 'perumnas2@notulensi.test', 'pass' => 'perumnas123', 'scope' => 'perumnas_2'],
+                ];
+                foreach ($admins as $a) {
+                    // Use SHA-256 because Vercel PHP does not have bcrypt/libssl
+                    $hashed = hash('sha256', $a['pass']);
+                    $check = $pdo->prepare("SELECT id FROM admins WHERE email = ?");
+                    $check->execute([$a['email']]);
+                    if ($check->fetchColumn()) {
+                        // Update to SHA-256 hash
+                        $stmt = $pdo->prepare("UPDATE admins SET password = ? WHERE email = ?");
+                        $stmt->execute([$hashed, $a['email']]);
+                    } else {
                         $stmt = $pdo->prepare("INSERT INTO admins (name, email, password, scope, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW()) ON CONFLICT DO NOTHING");
                         $stmt->execute([$a['name'], $a['email'], $hashed, $a['scope']]);
                     }
