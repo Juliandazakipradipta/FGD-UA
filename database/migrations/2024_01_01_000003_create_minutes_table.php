@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('minutes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('group_id')->constrained()->cascadeOnDelete();
+            $table->string('scope')->default('ulul_albab');
             $table->string('session_topic');
             $table->string('notulis_name')->nullable();
             $table->date('session_date')->default(now());

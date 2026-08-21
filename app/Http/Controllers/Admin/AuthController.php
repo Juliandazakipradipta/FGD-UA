@@ -17,11 +17,18 @@ class AuthController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
-        $input = $request->input('email');
+        $input = strtolower(trim((string)$request->input('email')));
         $password = $request->input('password');
 
-        // Allow entering 'admin' directly or full email 'admin@notulensi.test'
-        $email = (filter_var($input, FILTER_VALIDATE_EMAIL)) ? $input : 'admin@notulensi.test';
+        if (in_array($input, ['ulul albab', 'ululalbab', 'ululalbab@notulensi.test'])) {
+            $email = 'ululalbab@notulensi.test';
+        } elseif (in_array($input, ['perumnas2', 'perumnas 2', 'perumnas2@notulensi.test'])) {
+            $email = 'perumnas2@notulensi.test';
+        } elseif (filter_var($input, FILTER_VALIDATE_EMAIL)) {
+            $email = $input;
+        } else {
+            $email = 'admin@notulensi.test';
+        }
 
         $credentials = [
             'email' => $email,

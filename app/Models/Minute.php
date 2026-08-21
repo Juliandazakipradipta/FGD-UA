@@ -9,6 +9,7 @@ class Minute extends Model
 {
     protected $fillable = [
         'group_id',
+        'scope',
         'session_topic',
         'notulis_name',
         'session_date',

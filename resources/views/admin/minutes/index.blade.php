@@ -45,15 +45,24 @@
             <div x-data="{ tab: 1 }" class="glass-card rounded-2xl border border-emerald-200/80 p-5 shadow-xs transition hover:shadow-md space-y-4">
                 <!-- Card Header -->
                 <div class="flex items-start justify-between flex-wrap gap-3 border-b border-emerald-100 pb-3">
-                    <div class="flex items-center gap-3">
-                        <span class="px-3 py-1 rounded-lg bg-emerald-600 text-white font-heading font-black text-xs shadow-xs">
-                            {{ $minute->group->name ?? 'Grup' }}
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="px-3 py-1 rounded-lg bg-emerald-600 text-white font-heading font-black text-xs shadow-xs">
+                        {{ $minute->group->name ?? 'Grup' }}
+                    </span>
+                    @if(($minute->scope ?? '') === 'perumnas_2')
+                        <span class="px-2.5 py-1 rounded-lg bg-blue-100 text-blue-800 font-extrabold text-[11px] border border-blue-200">
+                            🕌 Perumnas 2
                         </span>
-                        <div>
-                            <h3 class="font-heading font-extrabold text-slate-900 text-base leading-tight">{{ $minute->session_topic }}</h3>
-                            <p class="text-[11px] text-slate-500 font-medium">Notulis: <strong class="text-slate-700">{{ $minute->notulis_name ?: 'Anonym' }}</strong></p>
-                        </div>
+                    @else
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-extrabold text-[11px] border border-emerald-200">
+                            🏢 ULUL ALBAB
+                        </span>
+                    @endif
+                    <div>
+                        <h3 class="font-heading font-extrabold text-slate-900 text-base leading-tight">{{ $minute->session_topic }}</h3>
+                        <p class="text-[11px] text-slate-500 font-medium">Notulis: <strong class="text-slate-700">{{ $minute->notulis_name ?: 'Anonym' }}</strong></p>
                     </div>
+                </div>
 
                     <div class="flex items-center gap-2">
                         <a href="{{ route('admin.minutes.show', $minute) }}" class="text-xs font-extrabold text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition border border-emerald-200/60">

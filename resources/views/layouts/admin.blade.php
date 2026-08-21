@@ -37,8 +37,26 @@
             </div>
             <div>
                 <span class="font-heading font-black text-slate-900 text-xs block leading-tight tracking-tight">ULUL ALBAB &bull; CAI 47</span>
-                <span class="text-[10px] text-emerald-700 font-extrabold uppercase tracking-wider">Admin Panel</span>
+                <span class="text-[10px] text-emerald-700 font-extrabold uppercase tracking-wider block">Admin Panel</span>
             </div>
+            @auth('admin')
+                @php $adminScope = auth('admin')->user()->scope; @endphp
+                <div class="mt-2">
+                    @if($adminScope === 'ulul_albab')
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            🏢 ULUL ALBAB
+                        </span>
+                    @elseif($adminScope === 'perumnas_2')
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-black bg-blue-100 text-blue-800 border border-blue-300">
+                            🕌 Perumnas 2
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-black bg-purple-100 text-purple-800 border border-purple-300">
+                            🌐 Semus Wilayah (SuperAdmin)
+                        </span>
+                    @endif
+                </div>
+            @endauth
         </div>
 
         <nav class="space-y-1 text-xs font-bold">

@@ -109,14 +109,33 @@ if (!file_exists($tmpDb) || filesize($tmpDb) === 0) {
 @chmod($tmpDb, 0666);
 @chmod(dirname($tmpDb), 0777);
 
-// Force the admin password in the SQLite DB to use the sha256 hash compatible with our custom hasher on Vercel
+// Force the admin passwords and scope columns in the SQLite DB to be compatible with Vercel runtime
 try {
     $db = new \PDO("sqlite:{$tmpDb}");
     $db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-    $shaPassword = '0a0a7b829264607431c7c8be622f37b85084adfa387c1878eaea234fa90da91c';
-    $db->exec("UPDATE admins SET password = '{$shaPassword}' WHERE email = 'admin@notulensi.test'");
+    
+    try { $db->exec("ALTER TABLE admins ADD COLUMN scope VARCHAR DEFAULT 'all'"); } catch (\Throwable $e) {}
+    try { $db->exec("ALTER TABLE minutes ADD COLUMN scope VARCHAR DEFAULT 'ulul_albab'"); } catch (\Throwable $e) {}
+
+    $admins = [
+        ['name' => 'Super Admin', 'email' => 'admin@notulensi.test', 'pass' => '0a0a7b829264607431c7c8be622f37b85084adfa387c1878eaea234fa90da91c', 'scope' => 'all'],
+        ['name' => 'Admin ULUL ALBAB', 'email' => 'ululalbab@notulensi.test', 'pass' => '87b87f39d70dff37c7f605b61854e94bf22bb3ffccf342b60331ee7343fa834c', 'scope' => 'ulul_albab'],
+        ['name' => 'Admin Perumnas 2', 'email' => 'perumnas2@notulensi.test', 'pass' => '0f01fccaa2fe3e105eb11d11873aef3b9912a349aa14d03e78b01cd7f20f81dd', 'scope' => 'perumnas_2'],
+    ];
+
+    foreach ($admins as $a) {
+        $stmt = $db->prepare("SELECT COUNT(*) FROM admins WHERE email = ?");
+        $stmt->execute([$a['email']]);
+        if ($stmt->fetchColumn() > 0) {
+            $up = $db->prepare("UPDATE admins SET name = ?, password = ?, scope = ? WHERE email = ?");
+            $up->execute([$a['name'], $a['pass'], $a['scope'], $a['email']]);
+        } else {
+            $ins = $db->prepare("INSERT INTO admins (name, email, password, scope, created_at, updated_at) VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))");
+            $ins->execute([$a['name'], $a['email'], $a['pass'], $a['scope']]);
+        }
+    }
 } catch (\Throwable $e) {
-    // Silently ignore if table doesn't exist yet
+    // Silently ignore if DB not initialized yet
 }
 
 putenv("DB_CONNECTION=sqlite");
