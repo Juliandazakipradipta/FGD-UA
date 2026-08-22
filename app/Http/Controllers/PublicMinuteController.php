@@ -6,6 +6,7 @@ use App\Http\Requests\StoreMinuteRequest;
 use App\Models\Group;
 use App\Models\Minute;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PublicMinuteController extends Controller
@@ -45,10 +46,28 @@ class PublicMinuteController extends Controller
 
     /**
      * Simpan notulensi baru dari publik.
+     * Dilindungi idempotency token untuk mencegah data double akibat double-click atau browser retry.
      */
     public function store(StoreMinuteRequest $request): RedirectResponse
     {
         $data = $request->validated();
+
+        // --- Idempotency guard: cek apakah token ini sudah pernah diproses ---
+        $token = $data['submit_token'] ?? null;
+        if ($token) {
+            $processedKey = 'submitted_token_' . $token;
+            if (session()->has($processedKey)) {
+                // Request duplikat — redirect ke success tanpa insert ulang
+                $cachedGroup = session($processedKey . '_group', 'Grup FGD');
+                $cachedName  = session($processedKey . '_name',  'Notulis');
+                return redirect()
+                    ->route('notulensi.success')
+                    ->with('notulis_name', $cachedName)
+                    ->with('group_name', $cachedGroup);
+            }
+        }
+        // -------------------------------------------------------------------
+
         if (empty($data['session_date'])) {
             $data['session_date'] = now()->toDateString();
         }
@@ -56,13 +75,30 @@ class PublicMinuteController extends Controller
             $data['scope'] = 'ulul_albab';
         }
 
-        $minute = Minute::create($data);
+        // Hapus submit_token dari data sebelum insert ke DB
+        unset($data['submit_token']);
+
+        $minute = \Illuminate\Support\Facades\DB::transaction(function () use ($data) {
+            return Minute::create($data);
+        });
+
         $group = Group::find($data['group_id']);
+        $groupName  = $group ? $group->name : 'Grup FGD';
+        $notulisName = $data['notulis_name'] ?? 'Notulis';
+
+        // Simpan token ke session agar request duplikat bisa dideteksi (expire bersama session)
+        if ($token) {
+            session([
+                'submitted_token_' . $token              => true,
+                'submitted_token_' . $token . '_group'   => $groupName,
+                'submitted_token_' . $token . '_name'    => $notulisName,
+            ]);
+        }
 
         return redirect()
             ->route('notulensi.success')
-            ->with('notulis_name', $data['notulis_name'] ?? 'Notulis')
-            ->with('group_name', $group ? $group->name : 'Grup FGD');
+            ->with('notulis_name', $notulisName)
+            ->with('group_name', $groupName);
     }
 
     /**

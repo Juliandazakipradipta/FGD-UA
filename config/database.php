@@ -14,10 +14,10 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
-            'busy_timeout' => 5000,
+            'busy_timeout' => 10000,  // 10 detik — agar tidak langsung error saat banyak user concurrent
             'journal_mode' => 'WAL',
             'synchronous' => 'NORMAL',
-            'transaction_mode' => 'DEFERRED',
+            'transaction_mode' => 'IMMEDIATE', // Lebih aman untuk concurrent write dibanding DEFERRED
         ],
 
         'mysql' => [

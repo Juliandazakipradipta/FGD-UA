@@ -41,6 +41,9 @@ class StoreMinuteRequest extends FormRequest
 
             // honeypot anti-spam
             'website' => ['prohibited'],
+
+            // Idempotency token (generated di frontend, dipakai backend untuk cegah duplikat)
+            'submit_token' => ['nullable', 'string', 'max:100'],
         ];
     }
 

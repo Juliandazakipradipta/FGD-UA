@@ -73,11 +73,14 @@
     <!-- Workspace Active Area -->
     <form id="notulisForm" method="POST" action="{{ route('notulensi.store') }}"
           x-show="selectedGroup &amp;&amp; getFinalTopic()" x-cloak
-          class="space-y-4 sm:space-y-6">
+          class="space-y-4 sm:space-y-6"
+          @submit="handleSubmit($event)">
         @csrf
 
         <input type="hidden" name="group_id" :value="selectedGroup">
         <input type="hidden" name="session_topic" :value="getFinalTopic()">
+        {{-- Idempotency token: mencegah data double jika ada retry --}}
+        <input type="hidden" name="submit_token" :value="submitToken">
 
         {{-- Honeypot anti-spam --}}
         <div class="absolute -left-[9999px]" aria-hidden="true">
@@ -365,9 +368,16 @@
 
             {{-- Tombol Simpan Notulensi Final HANYA muncul di Langkah 3 --}}
             <button type="submit" x-show="activeTab === 3" x-transition
-                    class="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white font-heading font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-500/30 transition transform active:scale-95 flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                <span>Simpan Notulensi Final</span>
+                    :disabled="isSubmitting"
+                    :class="isSubmitting ? 'opacity-60 cursor-not-allowed' : 'hover:from-emerald-700 hover:to-teal-600 active:scale-95'"
+                    class="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 text-white font-heading font-black text-xs sm:text-sm rounded-xl shadow-lg shadow-emerald-500/30 transition transform flex items-center justify-center gap-2">
+                <template x-if="!isSubmitting">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                </template>
+                <template x-if="isSubmitting">
+                    <svg class="w-4 h-4 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                </template>
+                <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Notulensi Final'"></span>
             </button>
         </div>
 
@@ -383,7 +393,10 @@ function fgdWorkspace() {
         groupName: '',
         selectedTopic: '{{ old("session_topic") && in_array(old("session_topic"), $topics) ? old("session_topic") : (old("session_topic") ? "custom" : "") }}',
         customTopic: '{{ old("session_topic") && !in_array(old("session_topic"), $topics) ? old("session_topic") : "" }}',
-        
+        isSubmitting: false,
+        // Token unik per session form — mencegah double submit jika browser retry
+        submitToken: crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2)),
+
         groupsMap: {
             @foreach ($groups as $g)
                 '{{ $g->id }}': '{{ $g->name }}',
@@ -412,6 +425,17 @@ function fgdWorkspace() {
                 return this.customTopic.trim();
             }
             return this.selectedTopic;
+        },
+
+        handleSubmit(event) {
+            // Cegah double submit: jika sudah submitting, batalkan
+            if (this.isSubmitting) {
+                event.preventDefault();
+                return;
+            }
+            this.isSubmitting = true;
+            // Timeout safety: re-enable setelah 15 detik jika ada masalah jaringan
+            setTimeout(() => { this.isSubmitting = false; }, 15000);
         },
 
         insertFormatting(elementId, type) {
