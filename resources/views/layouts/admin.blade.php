@@ -4,24 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Admin Panel - ULUL ALBAB & CAI 47')</title>
+
+    {{-- Google Fonts: display=swap agar teks langsung muncul, font menyusul --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    @if(file_exists(public_path('build/manifest.json')))
-        @php
-            $manifest = json_decode(file_get_contents(public_path('build/manifest.json')), true);
-            $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
-            $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
-        @endphp
-        @if($cssFile)
-            <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
-        @endif
-        @if($jsFile)
-            <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
-        @endif
-    @else
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;0,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    {{-- App CSS & JS: baca manifest sekali lalu cache di variabel PHP --}}
+    @php
+        static $adminManifest = null;
+        if ($adminManifest === null) {
+            $manifestPath = public_path('build/manifest.json');
+            $adminManifest = file_exists($manifestPath)
+                ? (json_decode(file_get_contents($manifestPath), true) ?? [])
+                : [];
+        }
+        $cssFile = $adminManifest['resources/css/app.css']['file'] ?? null;
+        $jsFile  = $adminManifest['resources/js/app.js']['file']  ?? null;
+    @endphp
+    @if($cssFile)
+        <link rel="preload" as="style" href="{{ asset('build/' . $cssFile) }}">
+        <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
+    @elseif(!$cssFile && !$jsFile)
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @endif
+    @if($jsFile)
+        <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
+    @endif
+
 </head>
 <body class="bg-[#F4FBF7] text-slate-800 antialiased min-h-screen flex font-sans">
 

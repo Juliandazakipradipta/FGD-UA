@@ -11,7 +11,9 @@ class EnsureAdminAuth
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::guard('admin')->check() || $request->session()->get('admin_logged_in') === true) {
+        // Cek session dulu (instant, tanpa DB query)
+        // Auth::guard hanya dipanggil jika session belum ada — menghindari query DB tiap request
+        if ($request->session()->get('admin_logged_in') === true || Auth::guard('admin')->check()) {
             return $next($request);
         }
 
