@@ -59,21 +59,17 @@
             {{-- Timer body: countdown kiri, info+tombol kanan --}}
             <div class="flex items-center gap-5 px-5 py-4">
 
-                {{-- Countdown — lingkaran CSS sederhana, tanpa SVG absolute positioning --}}
-                <div class="shrink-0 flex flex-col items-center justify-center rounded-full"
-                     style="width:80px;height:80px;border-width:5px;border-style:solid;transition:border-color 0.5s ease;"
-                     :style="'border-color:' + ringColor">
-                    <span class="font-heading font-black tabular-nums leading-tight"
-                          style="font-size:17px;"
-                          :style="'color:' + ringColor"
+                {{-- Countdown — lingkaran CSS, semua style dalam SATU :style binding agar Alpine bisa apply dengan benar --}}
+                <div class="shrink-0 flex flex-col items-center justify-center"
+                     :style="'width:80px;height:80px;border-radius:50%;border:5px solid ' + ringColor + ';transition:border-color 0.5s,color 0.5s;color:' + ringColor">
+                    <span class="font-heading font-black tabular-nums leading-tight" style="font-size:17px;"
                           x-text="display">05:00</span>
-                    <span class="font-semibold text-slate-400 leading-none mt-0.5"
-                          style="font-size:9px;"
+                    <span class="font-semibold leading-none mt-0.5" style="font-size:9px;color:#94a3b8;"
                           x-text="statusLabel">Siap</span>
                 </div>
 
-                {{-- Info + tombol --}}
-                <div class="flex-1 min-w-0 space-y-2.5">
+                {{-- Info + tombol — overflow:visible agar tombol tidak terpotong --}}
+                <div style="flex:1;overflow:visible;" class="space-y-2">
                     <p class="text-[11px] font-semibold leading-snug transition-colors duration-300"
                        :class="{ 'text-slate-500': phase==='idle'||phase==='running', 'text-amber-600': phase==='warning', 'text-red-600': phase==='danger'||phase==='done' }"
                        x-text="phaseMsg"></p>
