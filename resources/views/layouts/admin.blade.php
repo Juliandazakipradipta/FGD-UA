@@ -85,20 +85,77 @@
         </form>
     </aside>
 
-    <div class="flex-1 min-w-0">
-        <!-- Mobile Header with Dual Logos -->
-        <header class="md:hidden bg-white border-b border-emerald-100 px-5 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <img src="{{ asset('images/logo-ulul-albab.png') }}" alt="Ulul Albab" class="h-8 w-auto">
-                <div class="h-5 w-[1px] bg-slate-200"></div>
-                <img src="{{ asset('images/logo-cai47.png') }}" alt="CAI 47" class="h-5 w-auto">
-                <span class="font-heading font-extrabold text-xs text-slate-900 ml-1">Admin Panel</span>
+    <div class="flex-1 min-w-0 flex flex-col">
+
+        {{-- Mobile Header + Nav Drawer --}}
+        <div class="md:hidden" x-data="{ mobileOpen: false }">
+
+            {{-- Top bar --}}
+            <header class="bg-white border-b border-emerald-100 px-4 py-3 flex items-center justify-between shadow-xs">
+                <div class="flex items-center gap-2">
+                    <img src="{{ asset('images/logo-ulul-albab.png') }}" alt="Ulul Albab" class="h-7 w-auto">
+                    <div class="h-4 w-[1px] bg-slate-200"></div>
+                    <img src="{{ asset('images/logo-cai47.png') }}" alt="CAI 47" class="h-5 w-auto">
+                    <span class="font-heading font-black text-xs text-slate-900 ml-1">Admin Panel</span>
+                </div>
+                {{-- Hamburger button --}}
+                <button type="button" @click="mobileOpen = !mobileOpen"
+                        class="p-2 rounded-xl text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
+                    <svg x-show="!mobileOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                    <svg x-show="mobileOpen" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </header>
+
+            {{-- Slide-down nav drawer --}}
+            <div x-show="mobileOpen" x-cloak
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-2"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-2"
+                 class="bg-white border-b border-emerald-100 shadow-md px-4 py-3 space-y-1 text-xs font-bold">
+
+                <a href="{{ route('admin.dashboard') }}" @click="mobileOpen=false"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white' : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-900' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    Dashboard
+                </a>
+
+                <a href="{{ route('admin.minutes.index') }}" @click="mobileOpen=false"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.minutes.*') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white' : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-900' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Rekap Notulensi
+                </a>
+
+                <a href="{{ route('admin.groups.index') }}" @click="mobileOpen=false"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition {{ request()->routeIs('admin.groups.*') ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white' : 'text-slate-600 hover:bg-emerald-50 hover:text-emerald-900' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Kelola Kelompok
+                </a>
+
+                <a href="{{ route('home') }}" target="_blank"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-emerald-700 transition">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    Lihat Form Publik
+                </a>
+
+                <div class="pt-2 border-t border-slate-100">
+                    <form method="POST" action="{{ route('admin.logout') }}">
+                        @csrf
+                        <button type="submit"
+                                class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-red-600 hover:bg-red-50 transition">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            Keluar
+                        </button>
+                    </form>
+                </div>
             </div>
-            <form method="POST" action="{{ route('admin.logout') }}">
-                @csrf
-                <button class="text-xs text-red-600 font-bold">Keluar</button>
-            </form>
-        </header>
+        </div>
 
         <main class="p-5 md:p-8 max-w-6xl mx-auto">
             @if (session('status'))

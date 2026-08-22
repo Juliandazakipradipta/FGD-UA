@@ -38,107 +38,83 @@
                  'border-red-400':    phase === 'danger' || phase === 'done'
              }">
 
-            {{-- Top bar label --}}
-            <div class="flex items-center justify-between px-5 py-3 border-b transition-colors duration-500"
+            {{-- Top bar --}}
+            <div class="flex items-center justify-between px-4 py-2.5 border-b text-[11px] transition-colors duration-500"
                  :class="{
                      'border-emerald-100 bg-emerald-50/60': phase === 'idle' || phase === 'running',
-                     'border-amber-200  bg-amber-50/60':   phase === 'warning',
-                     'border-red-200    bg-red-50/70 animate-pulse': phase === 'danger',
-                     'border-red-200    bg-red-100/80':   phase === 'done'
+                     'border-amber-200  bg-amber-50/70':   phase === 'warning',
+                     'border-red-200    bg-red-50/70':     phase === 'danger' || phase === 'done'
                  }">
-                <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 shrink-0 transition-colors duration-300"
-                         :class="{ 'text-emerald-600': phase==='idle'||phase==='running', 'text-amber-500': phase==='warning', 'text-red-500': phase==='danger'||phase==='done' }"
-                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <div class="flex items-center gap-1.5 font-black uppercase tracking-wider transition-colors duration-300"
+                     :class="{ 'text-emerald-700': phase==='idle'||phase==='running', 'text-amber-700': phase==='warning', 'text-red-700': phase==='danger'||phase==='done' }">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <span class="text-xs font-black uppercase tracking-wider transition-colors duration-300"
-                          :class="{ 'text-emerald-700': phase==='idle'||phase==='running', 'text-amber-700': phase==='warning', 'text-red-700': phase==='danger'||phase==='done' }">
-                        Sesi Presentasi
-                    </span>
-                    <span class="text-[10px] font-semibold text-slate-400 ml-1">•  {{ $minute->group->name ?? 'Grup' }}</span>
+                    Sesi Presentasi
+                    <span class="font-semibold text-slate-400 normal-case tracking-normal">• {{ $minute->group->name ?? 'Grup' }}</span>
                 </div>
-                <span class="text-[10px] font-bold text-slate-400">5 menit / kelompok</span>
+                <span class="text-slate-400 font-semibold">5 menit / kelompok</span>
             </div>
 
-            {{-- Timer body --}}
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-5 px-5 py-5">
+            {{-- Timer body: ring kiri, konten kanan --}}
+            <div class="flex items-center gap-4 px-4 py-4">
 
-                {{-- SVG Ring + Digital Time --}}
-                <div class="relative w-28 h-28 shrink-0">
-                    <svg class="w-28 h-28 -rotate-90" viewBox="0 0 120 120">
-                        {{-- Track --}}
-                        <circle cx="60" cy="60" r="52" fill="none" stroke-width="8"
-                                class="text-slate-200" stroke="currentColor"/>
-                        {{-- Progress ring --}}
-                        <circle cx="60" cy="60" r="52" fill="none" stroke-width="8"
+                {{-- SVG Ring --}}
+                <div class="relative w-20 h-20 shrink-0">
+                    <svg class="w-20 h-20 -rotate-90" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="52" fill="none" stroke-width="10" stroke="#e2e8f0"/>
+                        <circle cx="60" cy="60" r="52" fill="none" stroke-width="10"
                                 stroke-linecap="round"
                                 :stroke="ringColor"
                                 stroke-dasharray="326.7"
                                 :stroke-dashoffset="ringOffset"
                                 style="transition: stroke-dashoffset 1s linear, stroke 0.5s ease;"/>
                     </svg>
-                    {{-- Digital countdown in center --}}
                     <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span class="font-heading font-black text-2xl leading-none tabular-nums transition-colors duration-300"
+                        <span class="font-heading font-black text-lg leading-none tabular-nums transition-colors duration-300"
                               :class="{ 'text-slate-900': phase==='idle'||phase==='running', 'text-amber-600': phase==='warning', 'text-red-600': phase==='danger'||phase==='done' }"
                               x-text="display">05:00</span>
-                        <span class="text-[9px] font-bold text-slate-400 mt-0.5" x-text="statusLabel"></span>
+                        <span class="text-[8px] font-bold text-slate-400 mt-0.5" x-text="statusLabel"></span>
                     </div>
                 </div>
 
-                {{-- Right: controls + info --}}
-                <div class="flex-1 w-full space-y-3">
-
-                    {{-- Simple info text --}}
-                    <p class="text-[11px] font-semibold transition-colors duration-300"
+                {{-- Kanan: info + tombol --}}
+                <div class="flex-1 min-w-0 space-y-2">
+                    <p class="text-[11px] font-semibold transition-colors duration-300 leading-snug"
                        :class="{ 'text-slate-500': phase==='idle'||phase==='running', 'text-amber-600': phase==='warning', 'text-red-600': phase==='danger'||phase==='done' }"
                        x-text="phaseMsg"></p>
 
-                    {{-- Control buttons --}}
                     <div class="flex items-center gap-2 flex-wrap">
-
-                        {{-- Mulai Sesi / Lanjut --}}
+                        {{-- Mulai / Lanjut --}}
                         <button type="button" @click="toggleTimer()"
                                 x-show="phase !== 'done' && !running"
-                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 shadow-sm shadow-emerald-500/30 transition-all duration-200 active:scale-95">
-                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
+                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 shadow-sm shadow-emerald-500/20 transition active:scale-95">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                             <span x-text="secondsLeft < 300 && secondsLeft > 0 ? 'Lanjut' : 'Mulai Sesi'"></span>
                         </button>
 
                         {{-- Pause --}}
                         <button type="button" @click="toggleTimer()"
                                 x-show="phase !== 'done' && running"
-                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 shadow-xs transition-all duration-200 active:scale-95">
-                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                            </svg>
-                            <span>Pause</span>
+                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 shadow-xs transition active:scale-95">
+                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            Pause
                         </button>
 
                         {{-- Reset --}}
                         <button type="button" @click="resetTimer()"
                                 x-show="secondsLeft < 300 || phase === 'done'"
-                                class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs active:scale-95">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                            </svg>
+                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition active:scale-95">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                             Reset
                         </button>
 
                         {{-- Done badge --}}
                         <span x-show="phase === 'done'"
-                              class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black text-red-700 bg-red-100 border border-red-300">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                            </svg>
+                              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black text-red-700 bg-red-100 border border-red-200">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
                             Waktu Habis!
                         </span>
-
                     </div>
                 </div>
             </div>
