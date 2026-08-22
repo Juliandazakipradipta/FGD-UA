@@ -158,7 +158,88 @@
         @endforelse
     </div>
 
-    <div class="mt-6">
-        {{ $minutes->links() }}
-    </div>
+    {{-- Custom Pagination --}}
+    @if ($minutes->hasPages())
+        <div class="mt-6 flex items-center justify-between flex-wrap gap-3">
+
+            {{-- Info halaman --}}
+            <p class="text-xs text-slate-500 font-medium">
+                Menampilkan
+                <span class="font-bold text-slate-700">{{ $minutes->firstItem() }}–{{ $minutes->lastItem() }}</span>
+                dari
+                <span class="font-bold text-slate-700">{{ $minutes->total() }}</span>
+                notulensi
+            </p>
+
+            {{-- Tombol navigasi --}}
+            <div class="flex items-center gap-1.5">
+
+                {{-- Previous --}}
+                @if ($minutes->onFirstPage())
+                    <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-slate-400 bg-slate-100 cursor-not-allowed select-none">
+                        &larr; Sebelumnya
+                    </span>
+                @else
+                    <a href="{{ $minutes->previousPageUrl() }}"
+                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 transition shadow-xs">
+                        &larr; Sebelumnya
+                    </a>
+                @endif
+
+                {{-- Nomor halaman (max 5 ditampilkan) --}}
+                @php
+                    $current = $minutes->currentPage();
+                    $last    = $minutes->lastPage();
+                    $start   = max(1, $current - 2);
+                    $end     = min($last, $current + 2);
+                @endphp
+
+                @if ($start > 1)
+                    <a href="{{ $minutes->url(1) }}" class="inline-flex items-center justify-center w-9 h-9 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 transition shadow-xs">1</a>
+                    @if ($start > 2)
+                        <span class="text-slate-400 text-xs font-bold px-1">&hellip;</span>
+                    @endif
+                @endif
+
+                @for ($page = $start; $page <= $end; $page++)
+                    @if ($page === $current)
+                        <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl text-xs font-black text-white bg-gradient-to-br from-emerald-600 to-teal-600 shadow-sm shadow-emerald-500/30">
+                            {{ $page }}
+                        </span>
+                    @else
+                        <a href="{{ $minutes->url($page) }}" class="inline-flex items-center justify-center w-9 h-9 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 transition shadow-xs">
+                            {{ $page }}
+                        </a>
+                    @endif
+                @endfor
+
+                @if ($end < $last)
+                    @if ($end < $last - 1)
+                        <span class="text-slate-400 text-xs font-bold px-1">&hellip;</span>
+                    @endif
+                    <a href="{{ $minutes->url($last) }}" class="inline-flex items-center justify-center w-9 h-9 rounded-xl text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 transition shadow-xs">{{ $last }}</a>
+                @endif
+
+                {{-- Next --}}
+                @if ($minutes->hasMorePages())
+                    <a href="{{ $minutes->nextPageUrl() }}"
+                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-800 transition shadow-xs">
+                        Selanjutnya &rarr;
+                    </a>
+                @else
+                    <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-slate-400 bg-slate-100 cursor-not-allowed select-none">
+                        Selanjutnya &rarr;
+                    </span>
+                @endif
+
+            </div>
+        </div>
+    @else
+        @if ($minutes->total() > 0)
+            <p class="mt-6 text-xs text-slate-500 font-medium text-center">
+                Total <span class="font-bold text-slate-700">{{ $minutes->total() }}</span> notulensi
+            </p>
+        @endif
+    @endif
+
 @endsection
