@@ -88,22 +88,10 @@
                     </div>
                 </div>
 
-                {{-- Right: bar progress + controls --}}
+                {{-- Right: controls + info --}}
                 <div class="flex-1 w-full space-y-3">
 
-                    {{-- Linear progress bar --}}
-                    <div class="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden">
-                        <div class="h-full rounded-full transition-all duration-1000 ease-linear"
-                             :style="'width:' + progressPct + '%'"
-                             :class="{
-                                 'bg-gradient-to-r from-emerald-500 to-teal-400': phase==='idle'||phase==='running',
-                                 'bg-gradient-to-r from-amber-400 to-orange-400': phase==='warning',
-                                 'bg-gradient-to-r from-red-500 to-rose-400':    phase==='danger'||phase==='done'
-                             }">
-                        </div>
-                    </div>
-
-                    {{-- Phase info text --}}
+                    {{-- Simple info text --}}
                     <p class="text-[11px] font-semibold transition-colors duration-300"
                        :class="{ 'text-slate-500': phase==='idle'||phase==='running', 'text-amber-600': phase==='warning', 'text-red-600': phase==='danger'||phase==='done' }"
                        x-text="phaseMsg"></p>
@@ -111,25 +99,24 @@
                     {{-- Control buttons --}}
                     <div class="flex items-center gap-2 flex-wrap">
 
-                        {{-- Start / Pause --}}
+                        {{-- Mulai Sesi / Lanjut --}}
                         <button type="button" @click="toggleTimer()"
-                                x-show="phase !== 'done'"
-                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black text-white shadow-sm transition-all duration-200 active:scale-95"
-                                :class="{
-                                    'bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 shadow-emerald-500/30': !running,
-                                    'bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-600 hover:to-orange-500 shadow-amber-400/30': running
-                                }">
-                            <template x-if="!running">
-                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M8 5v14l11-7z"/>
-                                </svg>
-                            </template>
-                            <template x-if="running">
-                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                                </svg>
-                            </template>
-                            <span x-text="running ? 'Pause' : (secondsLeft < 300 && secondsLeft > 0 ? 'Lanjut' : 'Mulai Sesi')"></span>
+                                x-show="phase !== 'done' && !running"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 shadow-sm shadow-emerald-500/30 transition-all duration-200 active:scale-95">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            <span x-text="secondsLeft < 300 && secondsLeft > 0 ? 'Lanjut' : 'Mulai Sesi'"></span>
+                        </button>
+
+                        {{-- Pause --}}
+                        <button type="button" @click="toggleTimer()"
+                                x-show="phase !== 'done' && running"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 shadow-xs transition-all duration-200 active:scale-95">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                            </svg>
+                            <span>Pause</span>
                         </button>
 
                         {{-- Reset --}}
@@ -307,10 +294,10 @@ function sessionTimer() {
             return 'Siap';
         },
         get phaseMsg() {
-            if (this.phase === 'done')    return '⏱ Waktu presentasi telah habis.';
-            if (this.phase === 'danger')  return '🔴 Kurang dari 20 detik — segera simpulkan!';
-            if (this.phase === 'warning') return '🟡 Kurang dari 1 menit — percepat presentasi!';
-            if (this.running)             return '🟢 Sesi sedang berjalan...';
+            if (this.phase === 'done')    return 'Waktu presentasi telah habis.';
+            if (this.phase === 'danger')  return 'Sisa: kurang dari 20 detik';
+            if (this.phase === 'warning') return 'Sisa: kurang dari 1 menit';
+            if (this.running)             return 'Sesi sedang berjalan...';
             return 'Tekan Mulai Sesi untuk memulai hitungan mundur 5 menit.';
         },
 
